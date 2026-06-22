@@ -1,0 +1,16 @@
+# --- Secrets / local config (do NOT commit) ---
+# NOTE: firebase-config.js is intentionally committed: this is a static site that
+# loads it in the browser, and a Firebase WEB apiKey is public by design.
+# It MUST be rotated + restricted (HTTP referrers) in Google Cloud to stay safe.
+.env
+.env.*
+*.key
+*.pem
+serviceAccount*.json
+
+# --- OS / editor noise ---
+.DS_Store
+Thumbs.db
+node_modules/
+.vscode/
+.idea/

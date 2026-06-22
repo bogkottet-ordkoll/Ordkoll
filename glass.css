@@ -1,0 +1,353 @@
+/* ==========================================================================
+   Ordkollen – iOS 26 "Liquid Glass"-lager
+   Läggs OVANPÅ styles.css. Frostat glas, mjuka highlights, rundade former.
+   Rör inte kärnan – endast visuella overrides + den flytande klockan & logon.
+   ========================================================================== */
+
+:root {
+  --glass-bg:        rgba(255,255,255,.55);
+  --glass-bg-strong: rgba(255,255,255,.72);
+  --glass-tile:      rgba(255,255,255,.50);
+  --glass-brd:       rgba(255,255,255,.65);
+  --glass-hi:        rgba(255,255,255,.85);
+  --glass-shadow:    0 8px 30px rgba(31,38,135,.12);
+  --glass-blur:      18px;
+}
+.dark {
+  --glass-bg:        rgba(32,33,37,.52);
+  --glass-bg-strong: rgba(32,33,37,.66);
+  --glass-tile:      rgba(44,46,51,.46);
+  --glass-brd:       rgba(255,255,255,.12);
+  --glass-hi:        rgba(255,255,255,.14);
+  --glass-shadow:    0 10px 34px rgba(0,0,0,.55);
+}
+
+/* Återanvändbar glas-yta */
+.glass-surface {
+  background: var(--glass-bg);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(180%);
+  backdrop-filter: blur(var(--glass-blur)) saturate(180%);
+  border: 1px solid var(--glass-brd);
+  box-shadow: var(--glass-shadow), inset 0 1px 0 var(--glass-hi);
+}
+
+/* ==========================================================================
+   Bakgrund – mjuk färgmesh så att glaset faktiskt syns
+   ========================================================================== */
+#appView {
+  background:
+    radial-gradient(900px 520px at 10% -10%, rgba(66,133,244,.20), transparent 60%),
+    radial-gradient(820px 540px at 102% -4%, rgba(251,188,4,.17), transparent 55%),
+    radial-gradient(820px 620px at 52% 118%, rgba(52,168,83,.17), transparent 55%),
+    radial-gradient(720px 520px at -8% 112%, rgba(234,67,53,.15), transparent 55%),
+    var(--bg) !important;
+  background-attachment: fixed;
+}
+.dark #appView {
+  background:
+    radial-gradient(900px 520px at 10% -10%, rgba(66,133,244,.24), transparent 60%),
+    radial-gradient(820px 540px at 102% -4%, rgba(251,188,4,.13), transparent 55%),
+    radial-gradient(820px 620px at 52% 118%, rgba(52,168,83,.16), transparent 55%),
+    radial-gradient(720px 520px at -8% 112%, rgba(234,67,53,.16), transparent 55%),
+    #0b0b0c !important;
+  background-attachment: fixed;
+}
+
+/* ==========================================================================
+   Header + navigation
+   ========================================================================== */
+#appView header {
+  background: var(--glass-bg-strong) !important;
+  border-color: var(--glass-brd) !important;
+  -webkit-backdrop-filter: blur(22px) saturate(190%);
+  backdrop-filter: blur(22px) saturate(190%);
+  box-shadow: 0 4px 24px rgba(31,38,135,.08);
+}
+
+.navtab { transition: background .15s ease, color .15s ease, box-shadow .15s ease; }
+.navtab:hover { background: color-mix(in srgb, var(--g-blue) 14%, transparent); }
+.navtab-active {
+  background: var(--glass-bg-strong);
+  border: 1px solid var(--glass-brd);
+  box-shadow: inset 0 1px 0 var(--glass-hi);
+  color: var(--g-blue);
+}
+
+/* Ikonknappar i header – glas */
+#themeToggle, #settingsBtn, #logoutBtn,
+#menuAvatarBtn {
+  background: var(--glass-bg) !important;
+  border: 1px solid var(--glass-brd) !important;
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+}
+#themeToggle:hover, #settingsBtn:hover, #logoutBtn:hover, #menuAvatarBtn:hover {
+  background: var(--glass-bg-strong) !important;
+}
+
+/* ==========================================================================
+   Sökfält & inputs
+   ========================================================================== */
+#searchInput, #patternInput {
+  background: var(--glass-bg-strong) !important;
+  -webkit-backdrop-filter: blur(10px) saturate(160%);
+  backdrop-filter: blur(10px) saturate(160%);
+  border: 1px solid var(--glass-brd) !important;
+  box-shadow: var(--glass-shadow), inset 0 1px 0 var(--glass-hi) !important;
+}
+
+/* ==========================================================================
+   Knappar – lite mer "vätskeglans"
+   ========================================================================== */
+.btn-grad {
+  background: linear-gradient(180deg, #4f93ff 0%, var(--g-blue) 100%) !important;
+  box-shadow: 0 4px 16px rgba(26,115,232,.35), inset 0 1px 0 rgba(255,255,255,.45) !important;
+}
+.btn-grad:hover { filter: brightness(1.04); }
+
+.tool-btn {
+  background: var(--glass-bg) !important;
+  border: 1px solid var(--glass-brd) !important;
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+}
+.tool-btn:hover { background: var(--glass-bg-strong) !important; }
+
+/* ==========================================================================
+   Kort & rutor
+   ========================================================================== */
+.card {
+  background: var(--glass-bg) !important;
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(180%);
+  backdrop-filter: blur(var(--glass-blur)) saturate(180%);
+  border: 1px solid var(--glass-brd) !important;
+  box-shadow: var(--glass-shadow), inset 0 1px 0 var(--glass-hi) !important;
+}
+
+/* Ordrutor: lätt genomskinliga UTAN blur (prestanda – kan finnas tusentals) */
+.word-tile {
+  background: var(--glass-tile) !important;
+  border: 1px solid var(--glass-brd) !important;
+}
+
+/* ==========================================================================
+   Gemini-chatt
+   ========================================================================== */
+.chat-fab {
+  background: var(--glass-bg-strong) !important;
+  border: 1px solid var(--glass-brd) !important;
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  backdrop-filter: blur(16px) saturate(180%);
+  box-shadow: var(--glass-shadow), inset 0 1px 0 var(--glass-hi) !important;
+}
+.chat-panel {
+  background: var(--glass-bg-strong) !important;
+  -webkit-backdrop-filter: blur(26px) saturate(190%);
+  backdrop-filter: blur(26px) saturate(190%);
+  border: 1px solid var(--glass-brd) !important;
+  box-shadow: var(--glass-shadow), inset 0 1px 0 var(--glass-hi) !important;
+}
+.chat-messages { background: transparent !important; }
+.chat-input { background: transparent !important; border-top: 1px solid var(--glass-brd); }
+.msg-bot { background: var(--glass-bg-strong) !important; border: 1px solid var(--glass-brd) !important; }
+
+/* ==========================================================================
+   Modaler
+   ========================================================================== */
+.modal-overlay {
+  background: rgba(20,22,28,.34) !important;
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+}
+.modal-box, .modal-card {
+  background: var(--glass-bg-strong) !important;
+  -webkit-backdrop-filter: blur(26px) saturate(190%);
+  backdrop-filter: blur(26px) saturate(190%);
+  border: 1px solid var(--glass-brd) !important;
+  box-shadow: var(--glass-shadow), inset 0 1px 0 var(--glass-hi) !important;
+}
+
+/* ==========================================================================
+   Sidomeny (drawer) + scrim
+   ========================================================================== */
+.ok-scrim { background: rgba(10,12,18,.40) !important; }
+.ok-drawer {
+  background: var(--glass-bg-strong) !important;
+  -webkit-backdrop-filter: blur(28px) saturate(190%);
+  backdrop-filter: blur(28px) saturate(190%);
+  border-left: 1px solid var(--glass-brd) !important;
+}
+.ok-drawer-head { background: transparent !important; border-bottom: 1px solid var(--glass-brd) !important; }
+.ok-stat, .ok-conn, .ok-field input, .ok-field select,
+.ok-field-sm input, .ok-foot-field select, .ok-foot-field input {
+  background: var(--glass-bg) !important;
+  border: 1px solid var(--glass-brd) !important;
+}
+
+/* ==========================================================================
+   Login – frostat glas över tapeten
+   ========================================================================== */
+#authView .glass {
+  background: var(--glass-bg-strong) !important;
+  -webkit-backdrop-filter: blur(28px) saturate(190%);
+  backdrop-filter: blur(28px) saturate(190%);
+  border: 1px solid var(--glass-brd) !important;
+  box-shadow: var(--glass-shadow), inset 0 1px 0 var(--glass-hi) !important;
+}
+
+/* ==========================================================================
+   Footer
+   ========================================================================== */
+.ok-footer {
+  background: var(--glass-bg) !important;
+  -webkit-backdrop-filter: blur(18px) saturate(170%);
+  backdrop-filter: blur(18px) saturate(170%);
+  border-top: 1px solid var(--glass-brd) !important;
+}
+
+/* ==========================================================================
+   TOAST – f.d. mörk "notch" → frostad glaspill (löser bort den mörka notchen)
+   ========================================================================== */
+.ok-toast {
+  background: var(--glass-bg-strong) !important;
+  color: var(--text) !important;
+  -webkit-backdrop-filter: blur(22px) saturate(190%);
+  backdrop-filter: blur(22px) saturate(190%);
+  border: 1px solid var(--glass-brd) !important;
+  box-shadow: var(--glass-shadow), inset 0 1px 0 var(--glass-hi) !important;
+}
+.ok-break-toast {
+  background: var(--glass-bg-strong) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid var(--glass-brd) !important;
+  border-left: 4px solid var(--g-green) !important;
+}
+
+/* ==========================================================================
+   FLYTANDE VÄRLDSKLOCKA (clock.js)
+   ========================================================================== */
+.ok-clock {
+  /* FAST i flödet – inte flytande, inte dragbar. Ligger där den sitter och
+     försvinner när man byter flik (den bor inuti #view-sok). */
+  position: static;
+  width: 236px; max-width: 100%;
+  margin: 4px auto 18px; /* centrerad direkt under sökrutan */
+  padding: 14px 14px 12px;
+  border-radius: 28px;
+  background: var(--glass-bg-strong);
+  -webkit-backdrop-filter: blur(26px) saturate(190%);
+  backdrop-filter: blur(26px) saturate(190%);
+  border: 1px solid var(--glass-brd);
+  box-shadow: var(--glass-shadow), inset 0 1px 0 var(--glass-hi);
+  color: var(--text);
+  display: flex; flex-direction: column; align-items: center; gap: 9px;
+  user-select: none; -webkit-user-select: none;
+}
+.ok-clock.hidden { display: none; }
+
+.ok-clock-top { display: flex; align-items: center; justify-content: space-between; width: 100%; }
+.ok-clock-top .ok-clock-loc { font-size: .82rem; font-weight: 800; display: flex; align-items: center; gap: 6px; overflow: hidden; }
+.ok-clock-loc .flag { font-size: 1rem; }
+.ok-clock-loc .name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ok-clock-min {
+  flex: 0 0 auto; width: 24px; height: 24px; border-radius: 9999px; border: 1px solid var(--glass-brd);
+  background: var(--glass-bg); color: var(--text-2); cursor: pointer; line-height: 1; font-size: .9rem;
+  display: inline-flex; align-items: center; justify-content: center; transition: background .15s, color .15s;
+}
+.ok-clock-min:hover { background: var(--g-blue); color: #fff; }
+
+.ok-clock-face { width: 124px; height: 124px; flex: 0 0 auto; filter: drop-shadow(0 4px 10px rgba(0,0,0,.12)); }
+.ok-clock-face .dial { fill: rgba(255,255,255,.30); stroke: var(--glass-brd); stroke-width: 1.5; }
+.dark .ok-clock-face .dial { fill: rgba(255,255,255,.05); }
+.ok-clock-face .tick { stroke: var(--text-2); stroke-width: 1.4; }
+.ok-clock-face .tick.major { stroke: var(--text); stroke-width: 2.6; }
+.ok-clock-face .hand-h { stroke: var(--text); stroke-width: 4.2; stroke-linecap: round; }
+.ok-clock-face .hand-m { stroke: var(--text); stroke-width: 3; stroke-linecap: round; }
+.ok-clock-face .hand-s { stroke: var(--g-red); stroke-width: 1.6; stroke-linecap: round; }
+.ok-clock-face .cap { fill: var(--g-blue); }
+
+.ok-clock-digital { font-variant-numeric: tabular-nums; font-weight: 800; font-size: 1.5rem; letter-spacing: .5px; line-height: 1; }
+.ok-clock-date { font-size: .72rem; color: var(--text-2); text-transform: capitalize; text-align: center; }
+.ok-clock-tz {
+  font-size: .62rem; font-weight: 800; letter-spacing: .4px; padding: 2px 9px; border-radius: 9999px;
+  background: color-mix(in srgb, var(--g-blue) 16%, transparent); color: var(--g-blue);
+  border: 1px solid color-mix(in srgb, var(--g-blue) 30%, transparent);
+}
+.ok-clock-select {
+  width: 100%; margin-top: 2px; padding: 8px 10px; border-radius: 14px;
+  background: var(--glass-bg) !important; color: var(--text);
+  border: 1px solid var(--glass-brd); font-size: .8rem; font-weight: 600;
+  outline: none; cursor: pointer; -webkit-appearance: none; appearance: none;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'><path d='M2 4l4 4 4-4' fill='none' stroke='%239aa0a6' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+  background-repeat: no-repeat; background-position: right 12px center;
+}
+.ok-clock-select:focus { border-color: var(--g-blue); box-shadow: 0 0 0 3px rgba(26,115,232,.18); }
+.ok-clock-select option { background: var(--surface); color: var(--text); }
+
+/* Minimerat läge – kompakt pill med bara urtavlan */
+.ok-clock.mini { width: auto; padding: 10px; gap: 0; }
+.ok-clock.mini .ok-clock-face { width: 72px; height: 72px; }
+.ok-clock.mini .ok-clock-digital,
+.ok-clock.mini .ok-clock-date,
+.ok-clock.mini .ok-clock-tz,
+.ok-clock.mini .ok-clock-select,
+.ok-clock.mini .ok-clock-loc .name { display: none; }
+.ok-clock.mini .ok-clock-top { gap: 6px; }
+
+@media (max-width: 560px) {
+  .ok-clock { margin: 4px auto 16px; } /* fast i flödet, centrerad under sökrutan */
+}
+
+/* ==========================================================================
+   Logo-badge – stöd för egen bild (branding.js)
+   ========================================================================== */
+.logo-badge { overflow: hidden; background-size: cover; background-position: center; }
+.logo-badge img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.logo-badge.has-image { background: none; }
+
+/* ==========================================================================
+   Batterismart läge – stäng av tunga blur-effekter
+   ========================================================================== */
+.power-save .glass-surface,
+.power-save #appView header,
+.power-save .card,
+.power-save .ok-clock,
+.power-save .ok-drawer,
+.power-save .chat-panel,
+.power-save .modal-box,
+.power-save .ok-toast,
+.power-save #searchInput {
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+
+/* ==========================================================================
+   Logotyp-inställningar i sidomenyn (branding.js)
+   ========================================================================== */
+.ok-logo-preview-row { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+.ok-logo-preview { flex: 0 0 auto; width: 48px; height: 48px; border-radius: 14px; font-size: 24px; }
+.ok-logo-styles { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+.ok-logo-style {
+  padding: 8px 12px; border-radius: 9999px; border: 1px solid var(--glass-brd);
+  background: var(--glass-bg); color: var(--text); font-weight: 700; font-size: .8rem;
+  cursor: pointer; transition: background .15s, border-color .15s, color .15s;
+}
+.ok-logo-style:hover { background: var(--glass-bg-strong); }
+.ok-logo-style.sel { background: var(--g-blue); border-color: var(--g-blue); color: #fff; }
+#okLogoColor { height: 42px; padding: 4px; cursor: pointer; }
+
+/* ==========================================================================
+   Röstväljare för uppläsning (extras.js)
+   ========================================================================== */
+.ok-voice-pick { display: inline-flex; align-items: center; gap: 6px; }
+.ok-voice-pick .ok-voice-ico { font-size: 1rem; line-height: 1; }
+.ok-voice-sel {
+  max-width: 220px; padding: 7px 12px; border-radius: 9999px;
+  background: var(--glass-bg); color: var(--text);
+  border: 1px solid var(--glass-brd); font-size: .8rem; font-weight: 600;
+  cursor: pointer; outline: none; -webkit-appearance: none; appearance: none;
+}
+.ok-voice-sel:hover { background: var(--glass-bg-strong); }
+.ok-voice-sel:focus { border-color: var(--g-blue); box-shadow: 0 0 0 3px rgba(26,115,232,.18); }
+.ok-voice-sel option, .ok-voice-sel optgroup { background: var(--surface); color: var(--text); }

@@ -1,0 +1,188 @@
+/* =========================================================================
+   Ordkollen – UNDERHÅLLNING: MOBIL-LÄGE (telefon/surfplatta)
+   ------------------------------------------------------------------------
+   Allt här gäller ENBART när entertainment-mobile.js har upptäckt en riktig
+   telefon eller surfplatta och satt klassen .ok-mobileyt på <html>.
+   På laptop/dator finns ingen sådan klass → 0 påverkan.
+
+   Scope: html.ok-mobileyt #view-underhallning ...  (rör inget annat).
+   Mål: känns som YouTube-appen – alltid synlig sökruta, en kolumn med stora
+   videokort, stora tryckytor, fast bottenmeny, lätt att skrolla & söka.
+   Läses in SIST → vinner kaskaden över entertainment.css.
+   ========================================================================= */
+
+/* ----------------------------------------------------------- scen / shell */
+html.ok-mobileyt #view-underhallning {
+  margin: -24px -16px !important;
+  min-height: 100vh;
+  overflow: visible;
+}
+html.ok-mobileyt #view-underhallning .et-shell {
+  display: block !important;     /* bryt flex (sidebar bredvid innehåll) */
+  margin: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  min-height: 100vh;
+}
+
+/* Dölj desktop-sidomenyn helt – vi använder en bottenmeny istället */
+html.ok-mobileyt #view-underhallning .et-sidebar { display: none !important; }
+
+html.ok-mobileyt #view-underhallning .et-content { padding: 0 !important; }
+
+/* ------------------------------------------------------- topp-app-bar + sök
+   Sökrutan var DOLD på små skärmar (buggen som gjorde att sökknappen
+   "försvann"). Här tvingar vi fram den och gör den till en bred, alltid
+   synlig pill högst upp – precis som YouTube-appens sökfält.               */
+html.ok-mobileyt #view-underhallning .et-masthead {
+  display: flex !important;
+  flex-wrap: wrap;
+  gap: 10px;
+  height: auto !important;
+  padding: 10px 12px calc(10px + env(safe-area-inset-top, 0px)) !important;
+  position: sticky; top: 0; z-index: 30;
+  background: rgba(10, 16, 34, .92);
+  backdrop-filter: blur(14px);
+}
+html.ok-mobileyt #view-underhallning .et-masthead .et-search {
+  display: flex !important;       /* <-- tvinga fram sökrutan på telefon */
+  order: 5;
+  flex: 1 1 100%;
+  max-width: none;
+  margin: 0 !important;
+  height: 46px;
+  padding: 0 16px;
+  font-size: 16px;                /* 16px = ingen auto-zoom på iOS */
+}
+html.ok-mobileyt #view-underhallning .et-masthead .et-search input {
+  font-size: 16px;
+}
+html.ok-mobileyt #view-underhallning .et-masthead .et-search .ic { font-size: 0; }
+html.ok-mobileyt #view-underhallning .et-masthead .et-search .ic svg { width: 22px; height: 22px; }
+
+/* Behåll bara de viktigaste ikonknapparna uppe till höger, kompakt */
+html.ok-mobileyt #view-underhallning .et-create {
+  order: 2; padding: 9px 12px;
+}
+html.ok-mobileyt #view-underhallning .et-create span:not(.ic) { display: none; } /* bara + ikon */
+html.ok-mobileyt #view-underhallning .et-masthead .et-icon-btn { width: 42px; height: 42px; }
+html.ok-mobileyt #view-underhallning .et-avatar-sm { display: none !important; }
+
+/* ------------------------------------------------------------- innehåll */
+html.ok-mobileyt #view-underhallning .et-main {
+  padding: 8px 0 84px !important;   /* utrymme för fast bottenmeny */
+}
+html.ok-mobileyt #view-underhallning .et-banner-strip {
+  height: 120px; margin: 8px 12px 4px; border-radius: 14px;
+}
+html.ok-mobileyt #view-underhallning .et-hero-sm {
+  font-size: 18px; margin: 14px 12px 10px;
+}
+html.ok-mobileyt #view-underhallning .et-section-h { margin: 18px 12px 8px; }
+html.ok-mobileyt #view-underhallning .et-livehint,
+html.ok-mobileyt #view-underhallning .et-keyprompt { margin: 16px 12px; }
+
+/* ----- EN kolumn med stora videokort (YouTube-app-känsla) ------------- */
+html.ok-mobileyt #view-underhallning .et-cards,
+html.ok-mobileyt #view-underhallning .et-feed-grid {
+  display: flex !important;
+  flex-direction: column;
+  gap: 4px;
+}
+html.ok-mobileyt #view-underhallning .et-card {
+  padding: 8px 0 14px;
+}
+html.ok-mobileyt #view-underhallning .et-thumb {
+  border-radius: 0;               /* kant-till-kant, som mobilappen */
+  border-left: 0; border-right: 0;
+}
+html.ok-mobileyt #view-underhallning .et-card-title {
+  font-size: 15px; margin: 10px 12px 3px; -webkit-line-clamp: 2;
+}
+html.ok-mobileyt #view-underhallning .et-card-meta {
+  font-size: 12.5px; margin: 0 12px;
+}
+
+/* --------------------------------------------------------- titt-sida (watch) */
+html.ok-mobileyt #view-underhallning .et-watch {
+  display: block !important;
+  grid-template-columns: 1fr !important;
+  padding-top: 0;
+}
+html.ok-mobileyt #view-underhallning .et-player {
+  border-radius: 0; border-left: 0; border-right: 0;
+  margin: 0 -0px;
+}
+html.ok-mobileyt #view-underhallning .et-watch-title {
+  font-size: 17px; margin: 12px 12px 8px;
+}
+html.ok-mobileyt #view-underhallning .et-watch-bar {
+  margin: 0 12px; gap: 12px;
+}
+/* Åtgärdsknappar i en horisontellt skrollbar rad – aldrig halvt dolda */
+html.ok-mobileyt #view-underhallning .et-watch-actions {
+  width: 100%;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 4px;
+  scrollbar-width: none;
+}
+html.ok-mobileyt #view-underhallning .et-watch-actions::-webkit-scrollbar { display: none; }
+html.ok-mobileyt #view-underhallning .et-act {
+  flex: 0 0 auto; min-height: 44px;
+}
+html.ok-mobileyt #view-underhallning .et-watch-desc { margin: 14px 12px; }
+html.ok-mobileyt #view-underhallning .et-reco { padding: 0 0 8px; }
+html.ok-mobileyt #view-underhallning .et-reco h3 { margin: 16px 12px 10px; }
+html.ok-mobileyt #view-underhallning #etReco {
+  display: flex !important; flex-direction: column; gap: 4px;
+}
+html.ok-mobileyt #view-underhallning .et-reco-card { display: block; margin: 0; padding: 8px 0 12px; }
+html.ok-mobileyt #view-underhallning .et-reco-thumb {
+  flex: none; width: 100%; max-width: 100%; border-radius: 0;
+  border-left: 0; border-right: 0; margin-bottom: 8px;
+}
+html.ok-mobileyt #view-underhallning .et-reco-title { font-size: 15px; margin: 0 12px 4px; }
+html.ok-mobileyt #view-underhallning .et-reco-info .et-card-meta { margin: 0 12px; }
+
+/* ----------------------------------------------------------- bottenmeny
+   Fast YouTube-liknande flikrad. Byggs av entertainment-mobile.js.        */
+html.ok-mobileyt #view-underhallning .etm-bottomnav {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 40;
+  display: flex; align-items: stretch;
+  background: rgba(10, 16, 34, .96);
+  backdrop-filter: blur(16px);
+  border-top: 1px solid rgba(255,255,255,.12);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+html.ok-mobileyt #view-underhallning .etm-tab {
+  flex: 1 1 0; min-width: 0;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 3px; padding: 9px 4px;
+  background: 0; border: 0; cursor: pointer;
+  color: #aab2cf; font-size: 11px; font-weight: 600;
+}
+html.ok-mobileyt #view-underhallning .etm-tab .etm-ic svg { width: 23px; height: 23px; display: block; }
+html.ok-mobileyt #view-underhallning .etm-tab.active { color: #fff; }
+html.ok-mobileyt #view-underhallning .etm-tab .etm-lbl {
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%;
+}
+html.ok-mobileyt #view-underhallning .etm-tab:active { background: rgba(255,255,255,.06); }
+
+/* ----------------------------------------------------------- surfplatta
+   På surfplatta (mer plats) – 2 kolumner i flödet, men behåll mobil-bar.   */
+html.ok-tablet #view-underhallning .et-cards,
+html.ok-tablet #view-underhallning .et-feed-grid {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 14px;
+  padding: 0 12px;
+}
+html.ok-tablet #view-underhallning .et-thumb {
+  border-radius: 12px; border-left: 1px solid var(--et-brd); border-right: 1px solid var(--et-brd);
+}
+html.ok-tablet #view-underhallning .et-card-title,
+html.ok-tablet #view-underhallning .et-card-meta { margin-left: 2px; margin-right: 2px; }
+html.ok-tablet #view-underhallning .etm-bottomnav { padding-left: 8%; padding-right: 8%; }

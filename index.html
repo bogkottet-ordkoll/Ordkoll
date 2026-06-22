@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ordkollen – synonymer, slang, uttryck & idiom</title>
+  <script
+    src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.3.0/dist/index.global.js"
+    integrity="sha384-nWTzRTCY/9V4Bo352ehygr1c4cnst4XN6lMR3fipakEQrhVpc0hEM5Dii3Amz0sT"
+    crossorigin="anonymous"
+  ></script>
+  <style type="text/tailwindcss">
+    @custom-variant dark (&:where(.dark, .dark *));
+  </style>
+  <script>
+    // Tema: respektera sparat val (light/dark), annars systemets inställning.
+    (function () {
+      var saved = null;
+      try { saved = localStorage.getItem('ordkollen_theme'); } catch (e) {}
+      var dark = saved ? saved === 'dark'
+        : window.matchMedia('(prefers-color-scheme: dark)').matches;
+      document.documentElement.classList.toggle('dark', dark);
+    })();
+  </script>
+  <!-- Google-typsnitt (Google Sans-likt: Roboto + Inter) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <!-- Google Identity Services -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <link rel="stylesheet" href="styles.css?v=6">
+  <link rel="stylesheet" href="glass.css?v=4">
+  <link rel="stylesheet" href="lab.css?v=5">
+  <link rel="stylesheet" href="akademin.css?v=2">
+  <link rel="stylesheet" href="youtube.css?v=4">
+  <link rel="stylesheet" href="entertainment.css?v=11">
+  <!-- Telefon/surfplatta-läge för Underhållning (laddas SIST så det vinner kaskaden) -->
+  <link rel="stylesheet" href="entertainment-mobile.css?v=2">
+  <!-- Mjuka fade/appear-övergångar för Underhållning (alla enheter) -->
+  <link rel="stylesheet" href="entertainment-anim.css?v=2">
+  <link rel="stylesheet" href="gemini-search.css?v=1">
+  <link rel="stylesheet" href="context.css?v=5">
+</head>
+<body class="min-h-dvh text-sm antialiased text-slate-900 dark:text-slate-100">
+
+  <!-- ===== INLOGGNING / KONTO ===== -->
+  <div id="authView" class="min-h-dvh flex items-center justify-center p-4 aurora">
+    <div class="w-full max-w-md relative">
+      <div class="flex flex-col items-center gap-3 mb-6">
+        <div class="logo-badge">📖</div>
+        <h1 class="text-3xl font-black tracking-tight">Ordkollen</h1>
+        <p class="text-slate-200 text-center drop-shadow">Ditt eget ordbibliotek – synonymer, slang, uttryck &amp; idiom</p>
+      </div>
+
+      <div class="glass rounded-2xl p-6 shadow-2xl">
+        <div id="gsiBtn" class="flex justify-center mb-4"></div>
+        <div id="gsiHint" class="text-[11px] text-slate-300 text-center mb-4 hidden"></div>
+
+        <div class="flex items-center gap-3 my-4 text-slate-300">
+          <div class="h-px flex-1 bg-white/20"></div><span class="text-xs">eller med konto</span><div class="h-px flex-1 bg-white/20"></div>
+        </div>
+
+        <div class="flex gap-2 mb-4 p-1 bg-white/10 rounded-xl">
+          <button id="tabLogin" class="auth-tab auth-tab-active flex-1">Logga in</button>
+          <button id="tabRegister" class="auth-tab flex-1">Skapa konto</button>
+        </div>
+
+        <form id="authForm" class="flex flex-col gap-3">
+          <input id="authUser" type="text" autocomplete="username" required placeholder="Användarnamn"
+            class="w-full px-3 py-2.5 rounded-lg bg-white/10 border border-white/20 text-white placeholder-slate-300 focus:outline-none focus:ring-2 focus:ring-fuchsia-400" />
+          <input id="authEmail" type="email" autocomplete="email" placeholder="E-postadress"
+            class="w-full px-3 py-2.5 rounded-lg bg-white/10 border border-white/20 text-white placeholder-slate-300 focus:outline-none focus:ring-2 focus:ring-fuchsia-400 hidden" />
+          <input id="authPass" type="password" autocomplete="current-password" required placeholder="Lösenord"
+            class="w-full px-3 py-2.5 rounded-lg bg-white/10 border border-white/20 text-white placeholder-slate-300 focus:outline-none focus:ring-2 focus:ring-fuchsia-400" />
+          <p id="authMsg" class="text-rose-300 text-xs min-h-[1rem]"></p>
+          <button id="authSubmit" type="submit"
+            class="w-full py-2.5 rounded-lg btn-grad text-white font-semibold transition">Logga in</button>
+        </form>
+      </div>
+      <p class="text-center text-[11px] text-slate-300 mt-4">Konton och sparade ord lagras lokalt i din webbläsare.</p>
+    </div>
+  </div>
+
+  <!-- ===== HUVUDAPP ===== -->
+  <div id="appView" class="hidden min-h-dvh bg-slate-50 dark:bg-slate-950">
+    <header class="sticky top-0 z-10 bg-white/80 dark:bg-slate-900/80 backdrop-blur border-b border-slate-200 dark:border-slate-800">
+      <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
+        <div class="flex items-center gap-2">
+          <div class="logo-badge logo-badge-sm">📖</div>
+          <span class="font-black text-lg">Ordkollen</span>
+        </div>
+        <div class="flex items-center gap-3">
+          <span id="whoami" class="text-slate-500 dark:text-slate-400 hidden sm:inline"></span>
+          <button id="ddSaverBadge" class="hidden text-xs px-2 py-1 rounded-full bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300 border border-amber-300 dark:border-amber-800" title="Strömsparläge aktivt">🔋 Sparläge</button>
+          <button id="menuAvatarBtn" class="px-3 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 transition" title="Inställningar (/settings)" aria-label="Öppna inställningar">☰</button>
+          <button id="themeToggle" title="Växla ljust/mörkt läge" aria-label="Växla tema">🌙</button>
+          <button id="settingsBtn" class="px-3 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 transition" title="Inställningar / Gemini-nyckel">⚙️</button>
+          <button id="logoutBtn" class="px-3 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 transition">Logga ut</button>
+        </div>
+      </div>
+      <nav class="max-w-5xl mx-auto px-2 flex gap-1 overflow-x-auto">
+        <button class="navtab navtab-active" data-view="sok">🔍 Sök</button>
+        <button class="navtab" data-view="blappa">📖 Bläddra</button>
+        <button class="navtab" data-view="korsord">🧩 Korsord</button>
+        <button class="navtab" data-view="generera">🎯 Generera</button>
+        <button class="navtab" data-view="lagg">➕ Lägg till</button>
+        <button class="navtab" data-view="sparade">⭐ Sparade <span id="navSavedCount"></span></button>
+        <button class="navtab" data-view="underhallning">📺 YouTube</button>
+      </nav>
+    </header>
+
+    <main class="max-w-5xl mx-auto px-4 py-6">
+      <!-- SÖK -->
+      <section id="view-sok" class="view">
+        <div class="gem-hero">
+          <h2 id="gemGreeting" class="gem-greeting">Hej!</h2>
+          <div id="gemBox" class="gem-box">
+            <input id="searchInput" type="text" placeholder="Fråga om vilket ord som helst…"
+              class="gem-input" autocomplete="off" />
+            <div class="gem-actions">
+              <button type="button" id="gemPlus" class="gem-icon-btn" title="Slå upp ett slumpord" aria-label="Slumpord">+</button>
+              <button id="searchBtn" class="gem-send" title="Sök" aria-label="Sök">➜</button>
+              <button type="button" id="gemMic" class="gem-icon-btn gem-mic" title="Röstsök" aria-label="Röstsök">🎤</button>
+            </div>
+          </div>
+        </div>
+        <div class="flex flex-wrap items-center gap-2 mb-3">
+          <button id="ttsBtn" class="tool-btn" title="Uttala ordet" disabled>🔊 Uttala</button>
+          <button id="copyBtn" class="tool-btn" title="Kopiera ord + synonymer" disabled>📋 Kopiera</button>
+          <button id="wotdBtn" class="tool-btn" title="Dagens ord">🗓️ Dagens ord</button>
+          <button id="surpriseBtn" class="tool-btn" title="Slå upp ett slumpord">🎲 Överraska mig</button>
+        </div>
+        <div id="recentBar" class="flex flex-wrap items-center gap-2 mb-3"></div>
+        <div id="suggestions" class="flex flex-wrap gap-2 mb-4"></div>
+        <div id="resultArea"></div>
+      </section>
+
+      <!-- BLÄDDRA (doon.se-stil) -->
+      <section id="view-blappa" class="view hidden">
+        <div class="card mb-4">
+          <div class="flex flex-wrap items-center gap-2 mb-3">
+            <span class="font-semibold mr-1">Bokstav:</span>
+            <div id="alphabet" class="flex flex-wrap gap-1"></div>
+          </div>
+          <div class="flex flex-wrap items-center gap-3">
+            <label class="flex items-center gap-2">Ordklass:
+              <select id="filterClass" class="px-2 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900">
+                <option value="">Alla</option>
+                <option value="substantiv">Substantiv</option>
+                <option value="verb">Verb</option>
+                <option value="adjektiv">Adjektiv</option>
+              </select>
+            </label>
+            <label class="flex items-center gap-2">Längd:
+              <select id="filterLen" class="px-2 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900">
+                <option value="">Alla</option>
+              </select>
+            </label>
+            <button id="longestBtn" class="px-3 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 transition">📏 Längsta orden</button>
+          </div>
+        </div>
+        <div class="card mb-4">
+          <div class="flex flex-wrap items-center gap-2">
+            <span class="font-semibold mr-1">🤖 Auto-fyll:</span>
+            <button id="autoFillVisibleBtn" class="px-3 py-1.5 rounded-lg btn-grad text-white font-semibold text-sm">Fyll i synliga ord</button>
+            <button id="autoFillAllBtn" class="px-3 py-1.5 rounded-lg border border-violet-300 dark:border-violet-800 text-violet-600 dark:text-violet-300 text-sm">Fyll i alla saknade (bakgrund)</button>
+            <button id="autoFillStopBtn" class="px-3 py-1.5 rounded-lg border border-rose-300 dark:border-rose-800 text-rose-600 dark:text-rose-400 text-sm hidden">⏹ Stoppa</button>
+          </div>
+          <div id="autoFillBar" class="h-2 rounded-full bg-slate-200 dark:bg-slate-800 mt-3 overflow-hidden hidden">
+            <div id="autoFillBarInner" class="h-full btn-grad transition-all" style="width:0%"></div>
+          </div>
+          <p id="autoFillStatus" class="text-xs mt-2 text-slate-500"></p>
+          <p class="text-[11px] text-amber-600 dark:text-amber-400 mt-1">⚠️ Hela ordlistan har ~118 000 ord – att fylla alla via Gemini tar mycket lång tid, slår i gratiskvoten och får inte plats i webbläsarens lagring. Fyll hellre de ord du faktiskt använder/sparar. Körningen kan stoppas och återupptas när som helst.</p>
+        </div>
+        <div id="browseResult" class="card-grid"></div>
+        <p id="browseCount" class="text-slate-400 text-xs mt-3"></p>
+      </section>
+
+      <!-- KORSORD (korsordx-stil) -->
+      <section id="view-korsord" class="view hidden">
+        <div class="card mb-4">
+          <h3 class="font-semibold mb-2">🧩 Korsordshjälp – mönstersökning</h3>
+          <p class="text-slate-500 dark:text-slate-400 text-xs mb-3">Använd <code class="px-1 rounded bg-slate-200 dark:bg-slate-800">?</code> för okända bokstäver. Ex: <code class="px-1 rounded bg-slate-200 dark:bg-slate-800">k??s??d</code> → korsord</p>
+          <div class="flex flex-col sm:flex-row gap-2">
+            <input id="patternInput" type="text" placeholder="Mönster, t.ex. h?st"
+              class="flex-1 px-4 py-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 font-mono tracking-widest focus:outline-none focus:ring-2 focus:ring-fuchsia-500" />
+            <button id="patternBtn" class="px-5 py-3 rounded-xl btn-grad text-white font-semibold transition">Lös</button>
+          </div>
+        </div>
+        <div id="crosswordResult" class="card-grid"></div>
+        <p id="crosswordCount" class="text-slate-400 text-xs mt-3"></p>
+      </section>
+
+      <!-- GENERERA ORD -->
+      <section id="view-generera" class="view hidden">
+        <div class="card max-w-3xl">
+          <h2 class="font-bold text-lg mb-1">🎯 Generera ord efter nivå & tema</h2>
+          <p class="text-slate-500 dark:text-slate-400 text-xs mb-4">Välj svårighetsnivå(er) och ett tema – Gemini skapar en ordlista med betydelse, färg 🟢/🔴 och synonymer. Kräver Gemini-nyckel (⚙️).</p>
+          <div class="mb-4">
+            <span class="font-medium text-sm">Svårighetsnivåer (CEFR)</span>
+            <div id="genLevels" class="flex flex-wrap gap-2 mt-2">
+              <label class="gen-level"><input type="checkbox" value="A1" checked class="accent-fuchsia-600"> A1 · Nybörjare (enkel)</label>
+              <label class="gen-level"><input type="checkbox" value="A2" class="accent-fuchsia-600"> A2 · Grund (enkel)</label>
+              <label class="gen-level"><input type="checkbox" value="B1" class="accent-fuchsia-600"> B1 · Medel</label>
+              <label class="gen-level"><input type="checkbox" value="B2" class="accent-fuchsia-600"> B2 · Övre medel (svår)</label>
+              <label class="gen-level"><input type="checkbox" value="C1" class="accent-fuchsia-600"> C1 · Avancerad</label>
+              <label class="gen-level"><input type="checkbox" value="C2" class="accent-fuchsia-600"> C2 · Mästare (mycket avancerad)</label>
+            </div>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
+            <label class="flex flex-col gap-1"><span class="font-medium text-sm">Tema</span>
+              <select id="genTheme" class="px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900">
+                <option value="Känslor">Känslor</option>
+                <option value="Föremål och saker">Föremål och saker</option>
+                <option value="Mat och dryck">Mat och dryck</option>
+                <option value="Natur och väder">Natur och väder</option>
+                <option value="Djur">Djur</option>
+                <option value="Kropp och hälsa">Kropp och hälsa</option>
+                <option value="Familj och relationer">Familj och relationer</option>
+                <option value="Skola och utbildning">Skola och utbildning</option>
+                <option value="Jobb och yrken">Jobb och yrken</option>
+                <option value="Resa och transport">Resa och transport</option>
+                <option value="Färger och former">Färger och former</option>
+                <option value="Tid och datum">Tid och datum</option>
+                <option value="Verb (handlingar)">Verb (handlingar)</option>
+                <option value="Adjektiv (egenskaper)">Adjektiv (egenskaper)</option>
+                <option value="Adverb och småord">Adverb och småord</option>
+                <option value="Hem och boende">Hem och boende</option>
+                <option value="Köket och husgeråd">Köket och husgeråd</option>
+                <option value="Kläder och mode">Kläder och mode</option>
+                <option value="Shopping och butiker">Shopping och butiker</option>
+                <option value="Sport och fritid">Sport och fritid</option>
+                <option value="Hobby och spel">Hobby och spel</option>
+                <option value="Musik och instrument">Musik och instrument</option>
+                <option value="Konst, film och litteratur">Konst, film och litteratur</option>
+                <option value="Högtider och traditioner">Högtider och traditioner</option>
+                <option value="Teknik och datorer">Teknik och datorer</option>
+                <option value="Internet och sociala medier">Internet och sociala medier</option>
+                <option value="Pengar och ekonomi">Pengar och ekonomi</option>
+                <option value="Samhälle och myndigheter">Samhälle och myndigheter</option>
+                <option value="Politik och nyheter">Politik och nyheter</option>
+                <option value="Miljö och klimat">Miljö och klimat</option>
+                <option value="Vetenskap och rymden">Vetenskap och rymden</option>
+                <option value="Sjukdom och vård">Sjukdom och vård</option>
+                <option value="Restaurang och café">Restaurang och café</option>
+                <option value="Stad och platser">Stad och platser</option>
+                <option value="Riktningar och lägen">Riktningar och lägen</option>
+                <option value="Väder och årstider">Väder och årstider</option>
+                <option value="Vardagsfraser och artighetsuttryck">Vardagsfraser och artighetsuttryck</option>
+                <option value="Idiom och ordspråk">Idiom och ordspråk</option>
+                <option value="Slang och talspråk">Slang och talspråk</option>
+                <option value="Blandat / allt">Blandat / allt</option>
+                <option value="__custom">✏️ Eget tema…</option>
+              </select>
+            </label>
+            <label class="flex flex-col gap-1"><span class="font-medium text-sm">Antal ord (per nivå)</span>
+              <input id="genCount" type="number" min="3" max="30" value="10" class="px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900" />
+            </label>
+          </div>
+          <label id="genCustomWrap" class="flex flex-col gap-1 mb-3 hidden"><span class="font-medium text-sm">Eget tema</span>
+            <input id="genCustom" placeholder="t.ex. rymden, musik, sport, fordon…" class="px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900" />
+          </label>
+          <div class="flex flex-wrap items-center gap-2">
+            <button id="genBtn" class="px-5 py-2.5 rounded-xl btn-grad text-white font-semibold">✨ Generera ord</button>
+            <button id="randomBtn" class="px-5 py-2.5 rounded-xl border border-fuchsia-300 dark:border-fuchsia-800 text-fuchsia-600 dark:text-fuchsia-300 font-semibold">🎲 Slumpa 5 ord</button>
+            <button id="genSaveAllBtn" class="px-4 py-2.5 rounded-xl border border-emerald-300 dark:border-emerald-800 text-emerald-600 dark:text-emerald-300 font-semibold hidden">⭐ Spara alla</button>
+            <span id="genStatus" class="text-xs text-slate-500"></span>
+          </div>
+        </div>
+        <div id="genResult" class="card-grid mt-4"></div>
+      </section>
+
+      <!-- LÄGG TILL ORD -->
+      <section id="view-lagg" class="view hidden">
+        <div class="card max-w-2xl">
+          <h2 class="font-bold text-lg mb-1">➕ Lägg till eget ord</h2>
+          <p class="text-slate-500 dark:text-slate-400 text-xs mb-4">Skapa ett ord som inte finns i ordboken. Skiljer flera värden med komma. Du kan även låta Gemini fylla i åt dig.</p>
+          <form id="addForm" class="flex flex-col gap-3">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <label class="flex flex-col gap-1"><span class="font-medium">Ord *</span>
+                <input id="addWord" required class="px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900" /></label>
+              <label class="flex flex-col gap-1"><span class="font-medium">Ordklass</span>
+                <select id="addClass" class="px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900">
+                  <option value="">–</option><option>substantiv</option><option>verb</option><option>adjektiv</option><option>adverb</option>
+                </select></label>
+            </div>
+            <label class="flex flex-col gap-1"><span class="font-medium">Sentiment</span>
+              <div class="flex gap-2">
+                <label class="flex items-center gap-1"><input type="radio" name="addSent" value="positiv" class="accent-emerald-600"> 🟢 Positiv</label>
+                <label class="flex items-center gap-1"><input type="radio" name="addSent" value="neutral" checked class="accent-slate-500"> ⚪ Neutral</label>
+                <label class="flex items-center gap-1"><input type="radio" name="addSent" value="negativ" class="accent-rose-600"> 🔴 Negativ</label>
+              </div></label>
+            <label class="flex flex-col gap-1"><span class="font-medium">Förenklad beskrivning</span>
+              <input id="addBesk" class="px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900" /></label>
+            <label class="flex flex-col gap-1"><span class="font-medium">Synonymer</span>
+              <input id="addSyn" placeholder="t.ex. lycklig, nöjd, munter" class="px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900" /></label>
+            <label class="flex flex-col gap-1"><span class="font-medium">Slang</span>
+              <input id="addSlang" class="px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900" /></label>
+            <label class="flex flex-col gap-1"><span class="font-medium">Uttryck</span>
+              <input id="addUttryck" class="px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900" /></label>
+            <label class="flex flex-col gap-1"><span class="font-medium">Idiom</span>
+              <input id="addIdiom" class="px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900" /></label>
+            <p id="addMsg" class="text-xs min-h-[1rem]"></p>
+            <div class="flex flex-wrap gap-2">
+              <button type="submit" class="px-4 py-2 rounded-lg btn-grad text-white font-semibold">💾 Spara ord</button>
+              <button type="button" id="aiFillBtn" class="px-4 py-2 rounded-lg border border-violet-300 dark:border-violet-800 text-violet-600 dark:text-violet-300 hover:bg-violet-50 dark:hover:bg-violet-950 transition">🤖 Låt Gemini fylla i</button>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <!-- SPARADE -->
+      <section id="view-sparade" class="view hidden">
+        <div class="card">
+          <div class="flex items-center justify-between mb-3">
+            <h2 class="font-bold text-lg">⭐ Mina sparade ord <span id="savedCount" class="text-slate-400 font-normal"></span></h2>
+            <div class="flex flex-wrap gap-2">
+              <button id="exportSavedBtn" class="text-xs px-3 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 transition">⬇️ Exportera</button>
+              <button id="removeSelectedBtn" class="text-xs px-3 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 transition">Ta bort valda</button>
+              <button id="removeAllBtn" class="text-xs px-3 py-1.5 rounded-lg border border-rose-300 dark:border-rose-800 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950 transition">Ta bort allt</button>
+            </div>
+          </div>
+          <ul id="savedList" class="flex flex-col gap-1.5"></ul>
+          <p id="savedEmpty" class="text-slate-400 text-sm py-8 text-center">Inga sparade ord än. Sök ett ord och klicka på ⭐ Spara.</p>
+        </div>
+      </section>
+
+      <!-- ===== UNDERHÅLLNING (Entertainment – functional, themed video browser) ===== -->
+      <section id="view-underhallning" class="view hidden">
+        <!-- AI HD: lätt unsharp-mask-filter som AI HD-knappen använder på spelaren -->
+        <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+          <filter id="etSharpen" x="0" y="0">
+            <feConvolveMatrix order="3" preserveAlpha="true"
+              kernelMatrix="0 -0.65 0  -0.65 3.6 -0.65  0 -0.65 0"/>
+          </filter>
+        </svg>
+        <div class="et-shell">
+
+          <!-- Sidebar -->
+          <aside class="et-sidebar">
+            <div class="et-side-brand"><span class="et-logo">▶</span> YouTube</div>
+            <div class="et-side-section">
+              <a class="et-side-item active" href="#" data-et-nav="home"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 22V12h6v10"/></svg></span> Home</a>
+              <a class="et-side-item" href="#" data-et-nav="trending"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.07-2.14-.22-4.05 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.15.43-2.29 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg></span> Trending</a>
+              <a class="et-side-item" href="#" data-et-nav="subs"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="m10 8 6 4-6 4z"/></svg></span> Subscriptions</a>
+            </div>
+            <div class="et-side-section">
+              <a class="et-side-item" href="#" data-et-nav="library"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m16 6 4 14"/><path d="M12 6v14"/><path d="M8 8v12"/><path d="M4 4v16"/></svg></span> Library</a>
+              <a class="et-side-item" href="#" data-et-nav="history"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/></svg></span> History</a>
+              <a class="et-side-item" href="#" data-et-nav="liked"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m23 7-7 5 7 5z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg></span> My Videos</a>
+              <a class="et-side-item" href="#" data-et-nav="watchlater"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span> Watch Later</a>
+            </div>
+            <div class="et-side-section">
+              <div class="et-side-title">Channels</div>
+              <a class="et-side-item" href="https://www.youtube.com/@nasa" target="_blank" rel="noopener"><span class="dot"></span> NASA</a>
+              <a class="et-side-item" href="https://www.youtube.com/@Vsauce" target="_blank" rel="noopener"><span class="dot"></span> Vsauce</a>
+              <a class="et-side-item" href="https://www.youtube.com/@veritasium" target="_blank" rel="noopener"><span class="dot"></span> Veritasium</a>
+              <a class="et-side-item" href="https://www.youtube.com/@Kurzgesagt" target="_blank" rel="noopener"><span class="dot"></span> Kurzgesagt</a>
+              <a class="et-side-item et-side-more" href="https://www.youtube.com/feed/channels" target="_blank" rel="noopener"><span class="et-side-title" style="padding:0">SHOW 23 MORE</span></a>
+            </div>
+            <div class="et-side-section">
+              <div class="et-side-title">More</div>
+              <a class="et-side-item" href="https://www.youtube.com/movies" target="_blank" rel="noopener"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M7 3v18M17 3v18M3 7.5h4M3 12h18M3 16.5h4M17 7.5h4M17 16.5h4"/></svg></span> Youtube Movies</a>
+              <a class="et-side-item" href="https://www.youtube.com/gaming" target="_blank" rel="noopener"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="6" y1="12" x2="10" y2="12"/><line x1="8" y1="10" x2="8" y2="14"/><line x1="15" y1="13" x2="15.01" y2="13"/><line x1="18" y1="11" x2="18.01" y2="11"/><rect x="2" y="6" width="20" height="12" rx="2"/></svg></span> Gaming</a>
+              <a class="et-side-item" href="https://www.youtube.com/live" target="_blank" rel="noopener"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4.9 19.1C1 15.2 1 8.8 4.9 4.9"/><path d="M7.8 16.2c-2.3-2.3-2.3-6.1 0-8.5"/><circle cx="12" cy="12" r="2"/><path d="M16.2 7.8c2.3 2.3 2.3 6.1 0 8.5"/><path d="M19.1 4.9C23 8.8 23 15.1 19.1 19"/></svg></span> Live</a>
+            </div>
+          </aside>
+
+          <!-- Content -->
+          <div class="et-content">
+            <div class="et-masthead">
+              <form class="et-search" id="etSearchForm">
+                <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg></span>
+                <input id="etSearchInput" type="text" placeholder="Sök videor…" aria-label="Sök videor" autocomplete="off">
+              </form>
+              <a class="et-create" href="https://www.youtube.com/upload" target="_blank" rel="noopener"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg></span> <span>CREATE</span></a>
+              <button type="button" class="et-icon-btn" id="etThemeToggle" title="Växla tema (ljust/mörkt)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg></button>
+              <button type="button" class="et-icon-btn" id="etSettingsBtn" title="YouTube-inställningar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
+              <button type="button" class="et-icon-btn" title="Appar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg></button>
+              <img class="et-avatar-sm" id="etUserAvatar" src="entertainment-host.jpg" alt="Profil">
+            </div>
+
+            <div id="etMain" class="et-main"><div class="et-loader">Laddar…</div></div>
+            <div id="etSentinel" class="et-sentinel"></div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- ===== FOOTER ===== -->
+    <footer class="ok-footer">
+      <div class="ok-footer-inner">
+        <div class="ok-footer-col">
+          <div class="flex items-center gap-2 mb-2">
+            <div class="logo-badge logo-badge-sm">📖</div>
+            <span class="font-black">Ordkollen</span>
+          </div>
+          <p class="text-slate-500 dark:text-slate-400 text-xs" data-i18n="footer_tag">Svenska synonymer, slang, uttryck &amp; idiom.</p>
+        </div>
+        <div class="ok-footer-col">
+          <h4 data-i18n="footer_lang">🌐 Språk</h4>
+          <label class="ok-foot-field">
+            <span data-i18n="footer_language">Välj språk</span>
+            <select id="langSelect"></select>
+          </label>
+          <p class="ok-hint" data-i18n="footer_lang_note" data-noi18n>Hela appen och orden översätts automatiskt till valt språk.</p>
+        </div>
+        <div class="ok-footer-col">
+          <h4 data-i18n="footer_legal">⚖️ Juridik</h4>
+          <button class="ok-link" data-legal="terms" data-i18n="footer_terms">Användarvillkor</button>
+          <button class="ok-link" data-legal="privacy" data-i18n="footer_privacy">Integritetspolicy (GDPR)</button>
+          <button class="ok-link" data-legal="cookies" data-i18n="footer_cookies">Hantera kakor (Cookies)</button>
+        </div>
+      </div>
+      <div class="ok-footer-bottom">
+        <span>© <span id="footYear"></span> Ordkollen</span>
+        <span class="text-slate-400" data-i18n="footer_made">Byggd med ❤️ för det svenska språket</span>
+      </div>
+    </footer>
+
+    <!-- ===== GEMINI CHATBOT ===== -->
+    <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+      <defs>
+        <linearGradient id="geminiGrad" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%"  stop-color="#4285F4"/>
+          <stop offset="45%" stop-color="#9b72cb"/>
+          <stop offset="100%" stop-color="#d96570"/>
+        </linearGradient>
+      </defs>
+    </svg>
+    <button id="chatToggle" class="chat-fab" title="Fråga Gemini AI" aria-label="Öppna Gemini-assistent">
+      <svg viewBox="0 0 24 24" class="gemini-spark" aria-hidden="true">
+        <path d="M12 0 C12 6.4 6.4 12 0 12 C6.4 12 12 17.6 12 24 C12 17.6 17.6 12 24 12 C17.6 12 12 6.4 12 0 Z"
+              fill="url(#geminiGrad)"/>
+      </svg>
+    </button>
+    <div id="chatPanel" class="chat-panel hidden">
+      <div class="chat-header">
+        <div class="flex items-center gap-2">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M12 0 C12 6.4 6.4 12 0 12 C6.4 12 12 17.6 12 24 C12 17.6 17.6 12 24 12 C17.6 12 12 6.4 12 0 Z" fill="#ffffff"/>
+          </svg>
+          <span class="font-bold">Gemini</span>
+        </div>
+        <button id="chatClose" class="text-white/80 hover:text-white text-lg">✕</button>
+      </div>
+      <div id="chatMessages" class="chat-messages"></div>
+      <form id="chatForm" class="chat-input">
+        <input id="chatText" placeholder="Fråga om synonymer, ord, idiom…" autocomplete="off"
+          class="flex-1 px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-violet-500" />
+        <button type="submit" class="px-3 py-2 rounded-lg btn-grad text-white font-semibold">➤</button>
+      </form>
+    </div>
+
+    <!-- ===== INSTÄLLNINGAR ===== -->
+    <div id="settingsModal" class="modal-overlay hidden">
+      <div class="modal-box">
+        <div class="flex items-center justify-between mb-3">
+          <h3 class="font-bold text-lg">⚙️ Inställningar</h3>
+          <button id="settingsClose" class="text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 text-lg">✕</button>
+        </div>
+        <label class="flex flex-col gap-1 mb-3">
+          <span class="font-medium">Gemini API-nyckel</span>
+          <input id="geminiKey" type="password" placeholder="AIza…"
+            class="px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900" />
+          <label class="flex items-center gap-1.5 text-[11px] text-slate-400 mt-1"><input id="showKey" type="checkbox" class="accent-violet-600"> Visa nyckeln</label>
+          <span id="keyStatus" class="text-[11px] mt-1"></span>
+          <span class="text-[11px] text-slate-400">Hämta gratis på <a href="https://aistudio.google.com/apikey" target="_blank" class="underline text-violet-500">aistudio.google.com/apikey</a>. Sparas endast lokalt i din webbläsare.</span>
+        </label>
+        <label class="flex flex-col gap-1 mb-3">
+          <span class="font-medium">📺 YouTube Data API-nyckel <span class="text-[11px] text-slate-400">(för Underhållning)</span></span>
+          <input id="ytKey" type="password" placeholder="AIza…"
+            class="px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900" />
+          <label class="flex items-center gap-1.5 text-[11px] text-slate-400 mt-1"><input id="showYtKey" type="checkbox" class="accent-violet-600"> Visa nyckeln</label>
+          <span class="text-[11px] text-slate-400">Aktivera <strong>YouTube Data API v3</strong> i <a href="https://console.cloud.google.com/apis/library/youtube.googleapis.com" target="_blank" class="underline text-violet-500">Google Cloud</a> och klistra in nyckeln. Sparas endast lokalt i din webbläsare.</span>
+        </label>
+        <label class="flex flex-col gap-1 mb-3">
+          <span class="font-medium">AI-modell</span>
+          <select id="geminiModel" class="px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900">
+            <option value="gemini-3.1-flash-lite">Gemini 3.1 Flash-Lite (förvalt – snabbast & billigast, gratiskvot)</option>
+            <option value="gemini-3.5-flash">Gemini 3.5 Flash</option>
+            <option value="gemini-2.5-flash-lite">Gemini 2.5 Flash-Lite</option>
+            <option value="gemini-2.5-flash">Gemini 2.5 Flash</option>
+            <option value="gemini-2.0-flash-lite">Gemini 2.0 Flash-Lite</option>
+            <option value="gemini-2.0-flash">Gemini 2.0 Flash</option>
+            <option value="gemini-1.5-flash">Gemini 1.5 Flash</option>
+          </select>
+          <span class="text-[11px] text-slate-400">Får du fel 429 (kvot slut)? Byt till en annan modell – de har separata kvoter. Flash-Lite har högst gratisgräns.</span>
+        </label>
+
+        <hr class="my-1 border-slate-200 dark:border-slate-800" />
+        <p class="text-[11px] font-semibold text-slate-500 dark:text-slate-400 mt-2 mb-1">🌍 Miljö &amp; kontext (ChatGPT)</p>
+        <label class="flex flex-col gap-1 mb-3">
+          <span class="font-medium">OpenAI API-nyckel</span>
+          <input id="openaiKey" type="password" placeholder="sk-…"
+            class="px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900" />
+          <label class="flex items-center gap-1.5 text-[11px] text-slate-400 mt-1"><input id="showOpenaiKey" type="checkbox" class="accent-violet-600"> Visa nyckeln</label>
+          <span class="text-[11px] text-slate-400">Driver omskrivningsutmaningen och skrivhjälpen i resultatkortet. Hämta på <a href="https://platform.openai.com/api-keys" target="_blank" class="underline text-violet-500">platform.openai.com/api-keys</a>. Saknas nyckel/kvot används din Gemini-nyckel automatiskt. Sparas endast lokalt i din webbläsare.</span>
+        </label>
+        <label class="flex flex-col gap-1 mb-3">
+          <span class="font-medium">OpenAI-modell</span>
+          <select id="openaiModel" class="px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900">
+            <option value="gpt-4o-mini">GPT-4o mini (förvalt – snabb &amp; billig)</option>
+            <option value="gpt-4o">GPT-4o</option>
+            <option value="gpt-4.1-mini">GPT-4.1 mini</option>
+            <option value="gpt-4.1">GPT-4.1</option>
+            <option value="gpt-4-turbo">GPT-4 Turbo</option>
+            <option value="gpt-5-mini">GPT-5 mini (kräver API-åtkomst)</option>
+            <option value="gpt-5.3-mini">GPT-5.3 mini (kräver API-åtkomst)</option>
+            <option value="gpt-5.4-mini">GPT-5.4 mini (kräver API-åtkomst)</option>
+          </select>
+          <span class="text-[11px] text-slate-400">Styr "Miljö &amp; kontext" (omskrivningsutmaning + skrivhjälp). Välj din mini-modell här.</span>
+        </label>
+
+        <p class="text-[11px] text-amber-600 dark:text-amber-400 mb-3">⚠️ På en publik sajt är nycklarna synliga i webbläsaren. Begränsa Google-nyckeln till din domän och använd en OpenAI-nyckel med utgiftstak/projektbegränsning.</p>
+        <div class="flex gap-2">
+          <button id="saveKeyBtn" class="flex-1 py-2 rounded-lg btn-grad text-white font-semibold">💾 Spara</button>
+          <button id="clearKeyBtn" class="flex-1 py-2 rounded-lg border border-rose-300 dark:border-rose-800 text-rose-600 dark:text-rose-400 font-semibold hover:bg-rose-50 dark:hover:bg-rose-950 transition">🗑️ Ta bort nyckel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLUMPA 5 ORD -->
+  <div id="randomModal" class="modal-overlay hidden">
+    <div class="modal-box" style="max-width:42rem;">
+      <div class="flex items-center justify-between mb-1">
+        <h3 class="font-bold text-lg">🎲 5 slumpade ord</h3>
+        <button id="randomClose" class="text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 text-lg">✕</button>
+      </div>
+      <p id="randomSub" class="text-slate-500 dark:text-slate-400 text-xs mb-3">Välj de ord du vill spara ⭐. Resten försvinner när du stänger.</p>
+      <div id="randomCards" class="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-[60vh] overflow-y-auto pr-1"></div>
+      <div class="flex flex-wrap gap-2 mt-4">
+        <button id="randomMoreBtn" class="px-4 py-2 rounded-lg border border-violet-300 dark:border-violet-800 text-violet-600 dark:text-violet-300 font-semibold text-sm">🎲 Slumpa nya</button>
+        <button id="randomDoneBtn" class="px-4 py-2 rounded-lg btn-grad text-white font-semibold text-sm">Klar / Gå ut</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- FIRANDE-EXPLOSION -->
+  <div id="celebrateLayer" class="hidden"></div>
+
+  <!-- ===== INSTÄLLNINGAR / SIDOMENY (/settings) ===== -->
+  <div id="okDrawerScrim" class="ok-scrim hidden"></div>
+  <aside id="okDrawer" class="ok-drawer" aria-hidden="true" aria-label="Inställningar">
+    <header class="ok-drawer-head">
+      <h2 data-i18n="set_title">⚙️ Inställningar</h2>
+      <button id="okDrawerClose" class="ok-x" aria-label="Stäng">✕</button>
+    </header>
+    <div class="ok-drawer-body">
+
+      <!-- PROFIL & KONTO -->
+      <section class="ok-sec">
+        <h3 data-i18n="set_profile">👤 Profil &amp; Konto</h3>
+        <label class="ok-field"><span data-i18n="set_displayname">Visningsnamn</span>
+          <input id="okDisplayName" type="text" placeholder="Ditt namn"></label>
+        <label class="ok-field"><span>E-post</span>
+          <input id="okEmail" type="email" placeholder="namn@exempel.se"></label>
+        <label class="ok-field"><span data-i18n="set_newpass">Nytt lösenord</span>
+          <input id="okNewPass" type="password" placeholder="Lämna tomt för att behålla"></label>
+        <button id="okSaveProfile" class="ok-btn ok-btn-primary" data-i18n="set_save_profile">💾 Spara profil</button>
+      </section>
+
+      <!-- SMARTA FUNKTIONER -->
+      <section class="ok-sec">
+        <h3 data-i18n="set_smart">✨ Smarta funktioner</h3>
+        <label class="ok-toggle"><span data-i18n="set_autotheme">🌅 Tidsstyrt tema (soluppgång/-nedgång)</span>
+          <input type="checkbox" id="okAutoTheme" class="ok-switch"></label>
+        <p id="okSunInfo" class="ok-hint"></p>
+
+        <label class="ok-toggle"><span data-i18n="set_dnd">🌙 Stör ej-läge</span>
+          <input type="checkbox" id="okDnd" class="ok-switch"></label>
+        <div id="okDndTimes" class="ok-inline hidden">
+          <label class="ok-field-sm"><span data-i18n="set_from">Från</span><input id="okDndStart" type="time" value="22:00"></label>
+          <label class="ok-field-sm"><span data-i18n="set_to">Till</span><input id="okDndEnd" type="time" value="07:00"></label>
+        </div>
+
+        <label class="ok-toggle"><span data-i18n="set_break">🧘 Hälso-påminnelser (paus varje timme)</span>
+          <input type="checkbox" id="okBreak" class="ok-switch"></label>
+
+        <label class="ok-toggle"><span data-i18n="set_battery">🔋 Batterismart läge (auto under 20%)</span>
+          <input type="checkbox" id="okBattery" class="ok-switch"></label>
+        <p id="okBatteryInfo" class="ok-hint"></p>
+
+        <label class="ok-field"><span data-i18n="set_persona">🤖 AI-persona (chatbot)</span>
+          <select id="okPersona">
+            <option value="standard">Standard – hjälpsam</option>
+            <option value="professional">Professionell – formell och saklig</option>
+            <option value="concise">Kortfattad – bara det viktigaste</option>
+            <option value="pedagogical">Pedagogisk – förklarar utförligt med exempel</option>
+            <option value="friendly">Vänlig – peppig och lättsam</option>
+          </select></label>
+      </section>
+
+      <!-- WEBBPLATSENS LOGOTYP -->
+      <section class="ok-sec">
+        <h3 data-i18n="set_logo">🎨 Webbplatsens logotyp</h3>
+        <div class="ok-logo-preview-row">
+          <div class="logo-badge ok-logo-preview" id="okLogoPreview">📖</div>
+          <p class="ok-hint" style="margin:0" data-i18n="set_logo_note">Byt ut den regnbågsfärgade logotypen mot en egen färg, symbol eller en uppladdad bild. Syns i header, login och footer.</p>
+        </div>
+        <div class="ok-logo-styles" id="okLogoStyles">
+          <button type="button" class="ok-logo-style sel" data-style="rainbow">🌈 Regnbåge</button>
+          <button type="button" class="ok-logo-style" data-style="color">🎨 Egen färg</button>
+          <button type="button" class="ok-logo-style" data-style="image">🖼️ Egen bild</button>
+        </div>
+        <label class="ok-field" id="okLogoColorWrap" style="display:none">
+          <span data-i18n="set_logo_color">Bakgrundsfärg</span>
+          <input id="okLogoColor" type="color" value="#1a73e8">
+        </label>
+        <label class="ok-field" id="okLogoSymbolWrap">
+          <span data-i18n="set_logo_symbol">Symbol (emoji eller 1–2 bokstäver)</span>
+          <input id="okLogoSymbol" type="text" maxlength="2" placeholder="📖">
+        </label>
+        <label class="ok-field" id="okLogoImageWrap" style="display:none">
+          <span data-i18n="set_logo_image">Egen bild (PNG, JPG eller SVG)</span>
+          <input id="okLogoImage" type="file" accept="image/*">
+        </label>
+        <button id="okLogoSave" class="ok-btn ok-btn-primary" data-i18n="set_logo_save">💾 Spara logotyp</button>
+        <button id="okLogoReset" class="ok-btn ok-btn-soft" data-i18n="set_logo_reset">↩️ Återställ till regnbåge</button>
+      </section>
+
+      <!-- ANVÄNDNINGSSTATISTIK -->
+      <section class="ok-sec">
+        <h3 data-i18n="set_stats">📊 Användningsstatistik</h3>
+        <div class="ok-stats-grid">
+          <div class="ok-stat"><span id="okStatTime" class="ok-stat-num">0m</span><span class="ok-stat-lbl" data-i18n="stat_time">Tid denna vecka</span></div>
+          <div class="ok-stat"><span id="okStatSearch" class="ok-stat-num">0</span><span class="ok-stat-lbl" data-i18n="stat_search">Sökningar</span></div>
+          <div class="ok-stat"><span id="okStatSaved" class="ok-stat-num">0</span><span class="ok-stat-lbl" data-i18n="stat_saved">Sparade ord</span></div>
+        </div>
+        <div id="okStatBars" class="ok-bars"></div>
+      </section>
+
+      <!-- DATAHANTERING & SYNK -->
+      <section class="ok-sec">
+        <h3 data-i18n="set_data">💾 Datahantering &amp; Synk mellan enheter</h3>
+        <p class="ok-hint" data-i18n="set_sync_note">Ladda ner en backup-fil och importera den på din andra mobil/dator för att flytta konto, sparade ord och inställningar. (Valfritt: aktivera molnsynk längre ner för automatisk synk.)</p>
+        <button id="okExportJson" class="ok-btn ok-btn-primary" data-i18n="set_export_json">⬇️ Exportera backup (JSON)</button>
+        <button id="okExportCsv" class="ok-btn ok-btn-soft" data-i18n="set_export_csv">⬇️ Exportera sparade ord (CSV)</button>
+        <button id="okImport" class="ok-btn ok-btn-soft" data-i18n="set_import">⬆️ Importera backup</button>
+        <input id="okImportFile" type="file" accept="application/json,.json" class="hidden">
+        <button id="okClearCache" class="ok-btn ok-btn-soft" data-i18n="set_clear_cache">🧹 Rensa lokal cache</button>
+
+        <details class="ok-details">
+          <summary data-i18n="set_cloud">☁️ Avancerat: Molnsynk (valfritt)</summary>
+          <p class="ok-hint" data-i18n="set_cloud_note">Klistra in en gratis JSONBin.io <em>Bin ID</em> + <em>X-Master-Key</em> för automatisk synk mellan enheter. Lämna tomt om du hellre använder backup-filen.</p>
+          <label class="ok-field"><span>Bin ID</span><input id="okCloudBin" type="text" placeholder="t.ex. 65a1...">
+          </label>
+          <label class="ok-field"><span>X-Master-Key</span><input id="okCloudKey" type="password" placeholder="$2a$10$..."></label>
+          <div class="ok-inline">
+            <button id="okCloudPush" class="ok-btn ok-btn-soft">⬆️ Synka upp</button>
+            <button id="okCloudPull" class="ok-btn ok-btn-soft">⬇️ Hämta ner</button>
+          </div>
+          <p id="okCloudStatus" class="ok-hint"></p>
+        </details>
+      </section>
+
+      <!-- DANGER ZONE -->
+      <section class="ok-sec ok-danger">
+        <h3 data-i18n="set_danger">⚠️ Danger Zone</h3>
+        <button id="okFactoryReset" class="ok-btn ok-btn-warn" data-i18n="set_factory">♻️ Återställ till fabriksinställningar</button>
+        <button id="okDeleteAccount" class="ok-btn ok-btn-danger" data-i18n="set_delete">🗑️ Radera kontot permanent</button>
+      </section>
+
+    </div>
+  </aside>
+
+  <!-- JURIDIK-MODAL -->
+  <div id="okLegalModal" class="modal-overlay hidden">
+    <div class="modal-card ok-legal-modal">
+      <div class="flex items-center justify-between mb-3">
+        <h3 id="okLegalTitle" class="font-bold text-lg"></h3>
+        <button id="okLegalClose" class="ok-x">✕</button>
+      </div>
+      <div id="okLegalBody" class="ok-legal-body"></div>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div id="okToast" class="ok-toast"></div>
+
+  <!-- PAUS-PÅMINNELSE -->
+  <div id="okBreakToast" class="ok-break-toast hidden">
+    <span id="okBreakText"></span>
+    <button id="okBreakDismiss" class="ok-x">✕</button>
+  </div>
+
+  <!-- Firebase (e-post/lösenord-inloggning sparas i molnet) -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
+  <script src="firebase-config.js?v=4"></script>
+  <script src="firebase-sync.js?v=4"></script>
+
+  <script src="data.js?v=4"></script>
+  <script src="app.js?v=8"></script>
+  <script src="extras.js?v=4"></script>
+  <script src="settings.js?v=4"></script>
+  <script src="clock.js?v=4"></script>
+  <script src="branding.js?v=4"></script>
+  <script src="lab.js?v=4"></script>
+  <script src="akademin.js?v=3"></script>
+  <script src="debug-guard.js?v=4"></script>
+  <script src="gemini-search.js?v=1"></script>
+  <script src="context.js?v=12"></script>
+  <!-- hls.js: krävs för Reklamfritt (Piped) HLS-uppspelning -->
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.17/dist/hls.min.js"></script>
+  <script src="entertainment.js?v=17"></script>
+  <!-- Enhetsidentifiering + mobil-layout för Underhållning (endast telefon/surfplatta) -->
+  <script src="entertainment-mobile.js?v=2"></script>
+</body>
+</html>

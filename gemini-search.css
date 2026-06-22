@@ -1,0 +1,148 @@
+/* ==========================================================================
+   Ordkollen – GEMINI-SÖKRUTA
+   Stor, rundad sökruta i Google Gemini-stil med en animerad regnbågskant
+   som tonar bort, plus en personlig hälsning ("Hej {namn}, …").
+   Fristående lager – kopplar bara via DOM. Rör inte app.js-logiken.
+   ========================================================================== */
+
+.gem-hero {
+  max-width: 760px;
+  margin: 6vh auto 26px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 22px;
+  text-align: center;
+}
+
+/* Hälsning */
+.gem-greeting {
+  font-size: clamp(1.6rem, 3.4vw, 2.5rem);
+  font-weight: 500;
+  letter-spacing: -.5px;
+  line-height: 1.2;
+  margin: 0;
+  color: var(--text);
+}
+.gem-greeting .gem-name {
+  background: linear-gradient(90deg, #4285f4, #9b72cb 45%, #d96570 80%, #f9ab00);
+  -webkit-background-clip: text; background-clip: text;
+  color: transparent;
+  font-weight: 600;
+}
+
+/* ---------- Själva rutan ---------- */
+.gem-box {
+  position: relative;
+  width: 100%;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 28px;
+  padding: 18px 20px 14px;
+  box-shadow: var(--shadow-1);
+  transition: box-shadow .2s ease, border-color .2s ease;
+}
+.dark .gem-box {
+  background: #2a2b2e;
+  border-color: #3a3b3e;
+}
+.gem-box:focus-within {
+  border-color: transparent;
+  box-shadow: 0 6px 24px rgba(60,64,67,.18);
+}
+
+/* Regnbågskant – ligger bakom rutan och tonar in/ut */
+.gem-box::before {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border-radius: 30px;
+  padding: 2px;
+  background: conic-gradient(from 0deg,
+    #4285f4, #9b72cb, #d96570, #f9ab00, #34a853, #4285f4);
+  /* visa bara som ram (mask) */
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+          mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+          mask-composite: exclude;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .5s ease;
+}
+/* När shimmer är aktiv: snurra regnbågen och tona bort den */
+.gem-box.gem-shimmer::before {
+  animation: gemRainbow 2.6s ease-out forwards;
+}
+@keyframes gemRainbow {
+  0%   { opacity: 0;   filter: hue-rotate(0deg)   saturate(1.2); }
+  18%  { opacity: 1; }
+  70%  { opacity: 1; }
+  100% { opacity: 0;   filter: hue-rotate(320deg) saturate(1.2); }
+}
+
+/* Textfältet */
+.gem-input {
+  width: 100%;
+  border: none !important;
+  outline: none !important;
+  background: transparent !important;
+  color: var(--text) !important;
+  font-size: 1.05rem;
+  padding: 4px 6px 14px !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+.gem-input::placeholder { color: var(--text-2); opacity: .9; }
+
+/* Rad med ikoner (+ , skicka, mikrofon) */
+.gem-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.gem-icon-btn {
+  width: 42px; height: 42px;
+  display: inline-flex; align-items: center; justify-content: center;
+  border-radius: 9999px;
+  border: none;
+  background: color-mix(in srgb, var(--text) 8%, transparent);
+  color: var(--text);
+  font-size: 1.25rem; line-height: 1;
+  cursor: pointer;
+  transition: background .15s ease, transform .12s ease;
+}
+.gem-icon-btn:hover { background: color-mix(in srgb, var(--text) 16%, transparent); transform: scale(1.05); }
+.gem-mic { margin-left: auto; }
+
+/* Skicka-knappen (söker) – syns när man skrivit något */
+.gem-send {
+  width: 42px; height: 42px;
+  display: inline-flex; align-items: center; justify-content: center;
+  border-radius: 9999px;
+  border: none;
+  background: var(--yt-red, #ff0033);
+  color: #fff;
+  font-size: 1.1rem; line-height: 1;
+  cursor: pointer;
+  opacity: 0; transform: scale(.85);
+  transition: opacity .15s ease, transform .15s ease, background .15s ease;
+  pointer-events: none;
+}
+.gem-box.has-text .gem-send { opacity: 1; transform: scale(1); pointer-events: auto; }
+.gem-send:hover { background: var(--yt-red-2, #cc0029); }
+
+/* Verktygsraden under rutan – centrera den fint i hjälte-läget */
+#view-sok > .flex.flex-wrap {
+  justify-content: center;
+  max-width: 760px;
+  margin: 0 auto 14px;
+}
+#view-sok #recentBar, #view-sok #suggestions {
+  max-width: 760px; margin-left: auto; margin-right: auto;
+}
+
+@media (max-width: 900px) {
+  .gem-hero { margin-top: 3vh; }
+  .gem-greeting { font-size: 1.5rem; }
+  .gem-box { border-radius: 22px; padding: 14px 14px 12px; }
+}

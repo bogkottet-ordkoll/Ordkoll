@@ -1,0 +1,50 @@
+/* Ordkollen — simple player (no AI, no live AA) */
+const $=id=>document.getElementById(id);
+const player=$('player'), video=$('video'), flash=$('flash'), hint=$('hint');
+if(window.__SCAN_VIDEO__) video.src=window.__SCAN_VIDEO__;
+
+let transitions=true, aa=4;
+
+function doFlash(){if(!transitions)return;flash.classList.add('go');setTimeout(()=>flash.classList.remove('go'),420)}
+function toast(m){hint.textContent=m;hint.classList.add('show');clearTimeout(toast._t);toast._t=setTimeout(()=>hint.classList.remove('show'),1600)}
+
+/* play / scrub / time */
+const playBtn=$('playBtn'),iPlay=playBtn.querySelector('.i-play'),iPause=playBtn.querySelector('.i-pause');
+const scrub=document.querySelector('.scrub'),scrubFill=$('scrubFill'),timeEl=$('time');
+playBtn.addEventListener('click',()=>video.paused?video.play():video.pause());
+video.addEventListener('play',()=>{iPlay.style.display='none';iPause.style.display='block'});
+video.addEventListener('pause',()=>{iPlay.style.display='block';iPause.style.display='none'});
+function fmt(s){s=Math.max(0,s||0);return Math.floor(s/60)+':'+String(Math.floor(s%60)).padStart(2,'0')}
+video.addEventListener('timeupdate',()=>{scrubFill.style.width=(video.currentTime/(video.duration||1)*100)+'%';timeEl.textContent=fmt(video.currentTime)});
+scrub.addEventListener('click',e=>{const r=scrub.getBoundingClientRect();video.currentTime=(e.clientX-r.left)/r.width*(video.duration||0)});
+video.play().catch(()=>{});
+
+/* settings */
+const settings=$('settings'),aaRange=$('aaRange'),aaVal=$('aaVal');
+$('settingsBtn').addEventListener('click',()=>settings.classList.toggle('show'));
+aaRange.addEventListener('input',()=>{aa=+aaRange.value;aaVal.textContent=aa+'×'});
+$('transToggle').addEventListener('click',e=>{transitions=!transitions;e.currentTarget.classList.toggle('on',transitions)});
+
+/* freeze capture (anti-aliased) */
+const capResult=$('captureResult'),capImg=$('capImg'),capDownload=$('capDownload'),capMeta=$('capMeta');
+$('captureBtn').addEventListener('click',()=>{
+  video.pause();doFlash();const ss=Math.sqrt(aa);
+  const w=Math.round(video.videoWidth*ss),h=Math.round(video.videoHeight*ss);
+  const c=document.createElement('canvas');c.width=w;c.height=h;const cx=c.getContext('2d');
+  cx.imageSmoothingEnabled=true;cx.imageSmoothingQuality='high';cx.drawImage(video,0,0,w,h);
+  const out=document.createElement('canvas');out.width=video.videoWidth;out.height=video.videoHeight;
+  const ox=out.getContext('2d');ox.imageSmoothingEnabled=true;ox.imageSmoothingQuality='high';ox.drawImage(c,0,0,out.width,out.height);
+  let url='';try{url=out.toDataURL('image/png')}catch(e){}
+  capImg.src=url;capDownload.href=url;
+  capMeta.textContent=`@ ${fmt(video.currentTime)} · ${video.videoWidth}×${video.videoHeight} · AA ${aa}×`;
+  capResult.classList.add('show');
+});
+$('capClose').addEventListener('click',()=>capResult.classList.remove('show'));
+
+/* fullscreen */
+const fsBtn=$('fsBtn');
+function isFs(){return document.fullscreenElement||document.webkitFullscreenElement}
+fsBtn.addEventListener('click',()=>{try{
+  if(isFs())(document.exitFullscreen||document.webkitExitFullscreen).call(document);
+  else (player.requestFullscreen||player.webkitRequestFullscreen).call(player);
+}catch(e){toast('Fullscreen blocked here — open in a new tab')}});

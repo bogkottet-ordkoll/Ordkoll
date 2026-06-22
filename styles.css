@@ -1,0 +1,538 @@
+/* ==========================================================================
+   Ordkollen – "Google Fresh" tema
+   Material-inspirerat: Google Sans/Roboto, Google-färger, pill-knappar,
+   rundade kort, snabbare scroll, äkta dark mode, tapet.
+   ========================================================================== */
+
+:root {
+  color-scheme: light dark;
+
+  /* Google brand */
+  --g-blue:   #1a73e8;
+  --g-blue-2: #4285f4;
+  --g-red:    #ea4335;
+  --g-yellow: #fbbc04;
+  --g-green:  #34a853;
+
+  /* Ytor – ljust */
+  --bg:        #f8f9fa;
+  --surface:   #ffffff;
+  --surface-2: #f1f3f4;
+  --border:    #dadce0;
+  --text:      #202124;
+  --text-2:    #5f6368;
+
+  --radius-card: 20px;
+  --radius-pill: 9999px;
+  --shadow-1: 0 1px 2px rgba(60,64,67,.10), 0 1px 3px rgba(60,64,67,.08);
+  --shadow-2: 0 1px 3px rgba(60,64,67,.12), 0 4px 12px rgba(60,64,67,.10);
+  --shadow-3: 0 8px 28px rgba(60,64,67,.18);
+}
+
+.dark {
+  --bg:        #131314;
+  --surface:   #1e1f20;
+  --surface-2: #282a2c;
+  --border:    #3c4043;
+  --text:      #e3e3e3;
+  --text-2:    #9aa0a6;
+  --shadow-1: 0 1px 2px rgba(0,0,0,.4);
+  --shadow-2: 0 2px 10px rgba(0,0,0,.5);
+  --shadow-3: 0 10px 30px rgba(0,0,0,.6);
+}
+
+* { font-family: "Google Sans","Google Sans Text","Roboto","Inter",system-ui,-apple-system,"Segoe UI",sans-serif; }
+
+/* ---- Snabbare/mjukare scroll ---- */
+html { scroll-behavior: smooth; }
+.chat-messages, #browseResult, #crosswordResult, #randomCards, main {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+/* Hoppa rendering av off-screen ordrutor i den stora bläddra-listan */
+#browseResult .word-tile, #crosswordResult .word-tile {
+  content-visibility: auto;
+  contain-intrinsic-size: 46px;
+}
+
+/* ==========================================================================
+   LOGIN – tapet i stället för animerad aurora (lättare = snabbare)
+   ========================================================================== */
+.aurora {
+  background: #fff url("assets/wallpaper-light.jpg") center/cover no-repeat fixed;
+  position: relative;
+}
+.dark .aurora {
+  background: #0c0c0d url("assets/wallpaper-dark.jpg") center/cover no-repeat fixed;
+}
+.aurora::before {
+  content: ""; position: absolute; inset: 0;
+  background: rgba(255,255,255,.30);
+}
+.dark .aurora::before { background: rgba(0,0,0,.35); }
+.aurora > * { position: relative; z-index: 1; }
+
+/* Login-kort – rent, ljust, Google-stil (inte mörkt glas) */
+.glass {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-3);
+  color: var(--text);
+}
+.glass input {
+  background: var(--surface-2) !important;
+  border-color: var(--border) !important;
+  color: var(--text) !important;
+}
+.glass input::placeholder { color: var(--text-2) !important; }
+.glass .text-slate-200,
+.glass .text-slate-300 { color: var(--text-2) !important; }
+.glass .bg-white\/10 { background: var(--surface-2) !important; }
+.glass .bg-white\/20 { background: var(--border) !important; }
+
+/* Login-rubrik utanför kortet – läsbar på tapet */
+#authView h1 { color: var(--text); }
+#authView p  { color: var(--text-2) !important; text-shadow: none !important; }
+
+/* ==========================================================================
+   KNAPPAR – Google blå pill (.btn-grad återanvänds i hela appen)
+   ========================================================================== */
+.btn-grad {
+  background: var(--g-blue);
+  background-image: none;
+  border-radius: var(--radius-pill);
+  box-shadow: 0 1px 2px rgba(26,115,232,.3);
+  transition: background .15s ease, box-shadow .15s ease, transform .08s ease;
+}
+.btn-grad:hover { background: #1b66c9; box-shadow: 0 1px 3px rgba(26,115,232,.5), 0 2px 8px rgba(26,115,232,.25); }
+.btn-grad:active { transform: scale(.97); }
+
+/* Sekundära & ikonknappar blir rundare/pillformade */
+#appView button:not(.btn-grad):not(.navtab):not(.alpha-btn):not(.chip),
+#authView button:not(.btn-grad):not(.auth-tab) {
+  border-radius: var(--radius-pill);
+}
+
+/* Sökfält m.fl. – pill-input i Google-stil */
+#searchInput, #patternInput {
+  border-radius: var(--radius-pill);
+  box-shadow: var(--shadow-1);
+  border-color: var(--border);
+}
+#searchInput:focus, #patternInput:focus { box-shadow: var(--shadow-2); }
+#searchBtn, #patternBtn { border-radius: var(--radius-pill); }
+
+/* ---- Logo-badge: Google-färgad ---- */
+.logo-badge {
+  display:flex; align-items:center; justify-content:center;
+  width:64px; height:64px; border-radius:20px; font-size:32px;
+  background: conic-gradient(from 210deg, var(--g-blue), var(--g-green), var(--g-yellow), var(--g-red), var(--g-blue));
+  box-shadow: var(--shadow-2);
+}
+.logo-badge-sm { width:36px; height:36px; border-radius:10px; font-size:18px; }
+
+/* ---- Auth-tabbar ---- */
+.auth-tab {
+  padding:0.5rem 0.75rem; border-radius: var(--radius-pill); font-weight:600;
+  color: var(--text-2); transition: all 0.15s ease; background: transparent;
+}
+.auth-tab-active { background: var(--g-blue); color:#fff; box-shadow: var(--shadow-1); }
+.glass .flex.gap-2.mb-4 { background: var(--surface-2) !important; }
+
+/* ==========================================================================
+   APP CHROME – header, navigation
+   ========================================================================== */
+#appView { background: var(--bg) !important; }
+#appView header {
+  background: color-mix(in srgb, var(--surface) 88%, transparent) !important;
+  border-color: var(--border) !important;
+  backdrop-filter: saturate(180%) blur(8px);
+  -webkit-backdrop-filter: saturate(180%) blur(8px);
+}
+
+.navtab {
+  padding:0.6rem 0.95rem; font-weight:600; white-space:nowrap; border-radius: var(--radius-pill);
+  color: var(--text-2); border-bottom:none; transition: background .15s ease, color .15s ease; margin: 4px 1px;
+}
+.navtab:hover { color: var(--g-blue); background: color-mix(in srgb, var(--g-blue) 10%, transparent); }
+.navtab-active { color: var(--g-blue); background: color-mix(in srgb, var(--g-blue) 14%, transparent); border-bottom:none; }
+
+/* Header-ikonknappar (tema, inställningar, logga ut) */
+#themeToggle, #settingsBtn {
+  width: 40px; height: 40px; display:inline-flex; align-items:center; justify-content:center;
+  border-radius: var(--radius-pill) !important; font-size: 18px; border:1px solid var(--border);
+  background: var(--surface); color: var(--text); transition: background .15s ease;
+}
+#themeToggle:hover, #settingsBtn:hover { background: var(--surface-2); }
+#logoutBtn { background: var(--surface); border:1px solid var(--border); color: var(--text); }
+#logoutBtn:hover { background: var(--surface-2); }
+
+/* ==========================================================================
+   KORT, RUTOR
+   ========================================================================== */
+.card {
+  background: var(--surface); border:1px solid var(--border);
+  border-radius: var(--radius-card); padding:1.25rem; box-shadow: var(--shadow-1);
+  color: var(--text);
+}
+.card-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(140px,1fr)); gap:0.6rem; }
+
+.word-tile {
+  padding:0.6rem 0.8rem; border-radius:14px; text-align:center; cursor:pointer;
+  background: var(--surface); border:1px solid var(--border); font-weight:500; color: var(--text);
+  transition: border-color .12s ease, color .12s ease, box-shadow .12s ease, transform .12s ease;
+}
+.word-tile:hover { transform: translateY(-2px); border-color: var(--g-blue); color: var(--g-blue); box-shadow: var(--shadow-1); }
+
+/* ---- Chips (semantiska Google-färger) ---- */
+.chip {
+  display:inline-flex; align-items:center; padding:0.3rem 0.8rem; border-radius: var(--radius-pill);
+  font-size:0.8rem; font-weight:500; border:1px solid transparent; cursor:pointer; transition:all 0.12s ease;
+}
+.chip:hover { transform: translateY(-1px); box-shadow: var(--shadow-1); }
+.chip-syn      { background:#e6f4ea; color:#137333; border-color:#ceead6; }
+.dark .chip-syn{ background:#0f3d23; color:#81c995; border-color:#1e5631; }
+.chip-slang      { background:#fef7e0; color:#b06000; border-color:#feefc3; }
+.dark .chip-slang{ background:#3d2e00; color:#fdd663; border-color:#5c4500; }
+.chip-uttryck      { background:#e8f0fe; color:#1967d2; border-color:#d2e3fc; }
+.dark .chip-uttryck{ background:#0d2a57; color:#8ab4f8; border-color:#1a3d6e; }
+.chip-idiom      { background:#fce8e6; color:#c5221f; border-color:#fad2cf; }
+.dark .chip-idiom{ background:#3d1411; color:#f28b82; border-color:#5c1f1b; }
+
+.alpha-btn {
+  width:32px; height:32px; border-radius: var(--radius-pill); font-weight:600; font-size:0.8rem;
+  background: var(--surface-2); color: var(--text); transition: all 0.1s ease;
+}
+.alpha-btn:hover { background: var(--g-blue); color:white; }
+.alpha-btn-active { background: var(--g-blue); color:white; }
+
+.saved-item {
+  display:flex; align-items:center; gap:0.6rem; padding:0.55rem 0.8rem; border-radius:14px;
+  border:1px solid var(--border); transition: background 0.12s ease;
+}
+.saved-item:hover { background: var(--surface-2); }
+.saved-card { list-style: none; margin: 0; }
+.saved-card .card, li.saved-card { margin: 0; }
+
+.gen-level { display:inline-flex; align-items:center; gap:0.4rem; padding:0.4rem 0.8rem; border-radius: var(--radius-pill);
+  border:1px solid var(--border); font-size:0.8rem; cursor:pointer; transition: background 0.12s ease; color: var(--text); }
+.gen-level:hover { background: var(--surface-2); }
+.level-badge { display:inline-block; font-size:0.65rem; font-weight:700; padding:0.12rem 0.5rem; border-radius: var(--radius-pill);
+  background:#e8f0fe; color: var(--g-blue); }
+.dark .level-badge { background:#0d2a57; color:#8ab4f8; }
+
+/* ---- Sentiment-badges ---- */
+.sent-badge { display:inline-flex; align-items:center; gap:0.3rem; padding:0.2rem 0.65rem; border-radius: var(--radius-pill); font-size:0.75rem; font-weight:700; }
+.sent-pos { background:#e6f4ea; color:#137333; }
+.dark .sent-pos { background:#0f3d23; color:#81c995; }
+.sent-neg { background:#fce8e6; color:#c5221f; }
+.dark .sent-neg { background:#3d1411; color:#f28b82; }
+.sent-neu { background:var(--surface-2); color:var(--text-2); }
+
+/* ==========================================================================
+   GEMINI CHATBOT – sparkle-logo, Google-stil
+   ========================================================================== */
+.chat-fab {
+  position: fixed; bottom: 22px; right: 22px; z-index: 40;
+  width: 60px; height: 60px; border-radius: var(--radius-pill);
+  display:flex; align-items:center; justify-content:center;
+  background: #fff; border:1px solid var(--border);
+  box-shadow: var(--shadow-3);
+  transition: transform 0.15s ease, box-shadow .15s ease;
+}
+.dark .chat-fab { background: var(--surface); }
+.chat-fab:hover { transform: translateY(-2px) scale(1.05); }
+.chat-fab svg { width: 30px; height: 30px; display:block; }
+
+/* Animerad Gemini-gnista */
+.gemini-spark { animation: sparkPulse 3s ease-in-out infinite; transform-origin: center; }
+@keyframes sparkPulse { 0%,100%{transform:scale(1); opacity:1;} 50%{transform:scale(.88); opacity:.85;} }
+
+.chat-panel {
+  position: fixed; bottom: 94px; right: 22px; z-index: 40;
+  width: min(390px, calc(100vw - 32px)); height: min(540px, calc(100dvh - 130px));
+  display: flex; flex-direction: column; border-radius: var(--radius-card); overflow: hidden;
+  background: var(--surface); border: 1px solid var(--border);
+  box-shadow: var(--shadow-3);
+}
+.chat-header {
+  display:flex; align-items:center; justify-content:space-between; padding:0.85rem 1rem; color:#fff;
+  background: linear-gradient(100deg, var(--g-blue) 0%, #7b5cf0 55%, var(--g-red) 120%);
+}
+.chat-header svg { width: 22px; height: 22px; }
+.chat-messages { flex:1; overflow-y:auto; padding:1rem; display:flex; flex-direction:column; gap:0.55rem; background: var(--bg); }
+.chat-input { display:flex; gap:0.5rem; padding:0.75rem; border-top:1px solid var(--border); background: var(--surface); }
+.chat-input input { border-radius: var(--radius-pill) !important; background: var(--surface-2) !important; border-color: var(--border) !important; color: var(--text) !important; }
+.chat-input button { border-radius: var(--radius-pill) !important; }
+
+.msg { max-width:85%; padding:0.55rem 0.85rem; border-radius:18px; line-height:1.45; white-space:pre-wrap; word-break:break-word; box-shadow: var(--shadow-1); animation: msgIn .18s ease; }
+@keyframes msgIn { from{opacity:0; transform: translateY(6px);} to{opacity:1; transform:none;} }
+.msg-user { align-self:flex-end; background: var(--g-blue); color:white; border-bottom-right-radius:5px; }
+.msg-bot  { align-self:flex-start; background: var(--surface); color: var(--text); border:1px solid var(--border); border-bottom-left-radius:5px; }
+
+/* ==========================================================================
+   MODALER
+   ========================================================================== */
+.modal-overlay { position:fixed; inset:0; z-index:50; display:flex; align-items:center; justify-content:center; padding:1rem;
+  background:rgba(32,33,36,0.5); backdrop-filter:blur(3px); }
+.modal-box { width:100%; max-width:440px; background:var(--surface); border:1px solid var(--border); border-radius: var(--radius-card); padding:1.5rem; box-shadow: var(--shadow-3); color: var(--text); }
+
+/* ==========================================================================
+   NYA VERKTYG – toolbar, recent, export
+   ========================================================================== */
+.tool-btn {
+  display:inline-flex; align-items:center; gap:.35rem; padding:.45rem .85rem; border-radius: var(--radius-pill);
+  border:1px solid var(--border); background: var(--surface); color: var(--text); font-size:.8rem; font-weight:600;
+  cursor:pointer; transition: background .12s ease, border-color .12s ease;
+}
+.tool-btn:hover { background: var(--surface-2); border-color: var(--g-blue); color: var(--g-blue); }
+.tool-btn:disabled { opacity:.5; cursor:not-allowed; }
+
+#recentBar .chip { background: var(--surface-2); color: var(--text-2); border:1px solid var(--border); }
+#recentBar .chip:hover { color: var(--g-blue); border-color: var(--g-blue); }
+
+/* ==========================================================================
+   ANIMATIONER (firande + dammsugare) – omfärgade till Google
+   ========================================================================== */
+@keyframes vacuumSuck {
+  0%   { transform: scale(1) translateX(0) rotate(0); opacity: 1; }
+  35%  { transform: scale(0.92) translateX(6%) rotate(-2deg); opacity: 1; }
+  100% { transform: scale(0.04) translateX(130%) rotate(22deg); opacity: 0; }
+}
+.vacuuming { animation: vacuumSuck 0.6s cubic-bezier(0.55,0.06,0.68,0.19) forwards;
+  transform-origin: right center; position: relative; overflow: visible; pointer-events: none; }
+.vacuuming::after { content: "🧹"; position: absolute; right: -10px; top: 50%; font-size: 1.6rem;
+  transform: translateY(-50%); animation: vacNozzle 0.6s ease forwards; }
+@keyframes vacNozzle { 0%{opacity:0; right:-30px;} 30%{opacity:1; right:-10px;} 100%{opacity:1; right:-6px;} }
+
+#celebrateLayer { position: fixed; inset: 0; z-index: 80; pointer-events: none; overflow: hidden; }
+#celebrateLayer.hidden { display: none; }
+.celebrate-msg { position: absolute; left: 50%; top: 42%; transform: translate(-50%,-50%) scale(0);
+  font-size: clamp(1.4rem, 6vw, 2.4rem); font-weight: 900; text-align: center; white-space: nowrap;
+  background: linear-gradient(90deg,var(--g-blue),var(--g-green),var(--g-yellow),var(--g-red)); -webkit-background-clip: text; background-clip: text; color: transparent;
+  animation: celebratePop 1.6s ease forwards; filter: drop-shadow(0 4px 14px rgba(26,115,232,0.35)); }
+@keyframes celebratePop {
+  0%{transform:translate(-50%,-50%) scale(0); opacity:0;}
+  25%{transform:translate(-50%,-50%) scale(1.15); opacity:1;}
+  70%{transform:translate(-50%,-50%) scale(1); opacity:1;}
+  100%{transform:translate(-50%,-55%) scale(1); opacity:0;}
+}
+.particle { position: absolute; font-size: 1.6rem; will-change: transform, opacity; animation: particleFly 1.5s ease-out forwards; }
+@keyframes particleFly {
+  0%{transform: translate(0,0) scale(0.4) rotate(0); opacity: 1;}
+  100%{transform: translate(var(--dx), var(--dy)) scale(1.1) rotate(var(--rot)); opacity: 0;}
+}
+
+/* ---- Scrollbar ---- */
+::-webkit-scrollbar { width:10px; height:10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius:8px; border:2px solid transparent; background-clip: padding-box; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-2); background-clip: padding-box; }
+
+/* Fix: .hidden vinner */
+.chat-panel.hidden { display: none; }
+.modal-overlay.hidden { display: none; }
+.view.hidden { display: none; }
+
+/* ==========================================================================
+   Ordkollen – Inställningar (/settings), footer, avatarer, smarta funktioner
+   ========================================================================== */
+
+/* ---- Avatar-knapp i headern ---- */
+.avatar-btn {
+  width: 38px; height: 38px; border-radius: 9999px; overflow: hidden;
+  border: 2px solid var(--border); background: var(--surface-2);
+  display: inline-flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: transform .15s, box-shadow .15s, border-color .15s; padding: 0;
+}
+.avatar-btn:hover { transform: scale(1.06); box-shadow: var(--shadow-2); border-color: var(--g-blue); }
+.avatar-img { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
+.avatar-img svg, .avatar-img img { width: 100%; height: 100%; display: block; }
+
+/* ---- Scrim + Drawer ---- */
+.ok-scrim {
+  position: fixed; inset: 0; background: rgba(0,0,0,.45);
+  z-index: 60; opacity: 0; animation: okFade .2s ease forwards; backdrop-filter: blur(2px);
+}
+.ok-scrim.hidden { display: none; }
+@keyframes okFade { to { opacity: 1; } }
+
+.ok-drawer {
+  position: fixed; top: 0; right: 0; height: 100dvh; width: min(420px, 92vw);
+  background: var(--bg); z-index: 61; box-shadow: var(--shadow-3);
+  display: flex; flex-direction: column;
+  transform: translateX(100%); transition: transform .28s cubic-bezier(.4,0,.2,1);
+  border-left: 1px solid var(--border);
+}
+.ok-drawer.open { transform: translateX(0); }
+.ok-drawer-head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 18px; border-bottom: 1px solid var(--border);
+  position: sticky; top: 0; background: var(--bg); z-index: 2;
+}
+.ok-drawer-head h2 { font-size: 1.15rem; font-weight: 800; color: var(--text); }
+.ok-drawer-body { overflow-y: auto; padding: 8px 18px 28px; flex: 1; }
+
+.ok-x {
+  width: 34px; height: 34px; border-radius: 9999px; border: none; cursor: pointer;
+  background: var(--surface-2); color: var(--text-2); font-size: 1rem; line-height: 1;
+  display: inline-flex; align-items: center; justify-content: center; transition: background .15s, color .15s;
+}
+.ok-x:hover { background: var(--g-red); color: #fff; }
+
+/* ---- Sektioner ---- */
+.ok-sec { padding: 18px 0; border-bottom: 1px solid var(--border); }
+.ok-sec:last-child { border-bottom: none; }
+.ok-sec h3 { font-size: .95rem; font-weight: 800; margin-bottom: 14px; color: var(--text); }
+
+.ok-field, .ok-field-sm { display: flex; flex-direction: column; gap: 5px; margin-bottom: 12px; }
+.ok-field > span, .ok-field-sm > span { font-size: .8rem; color: var(--text-2); font-weight: 600; }
+.ok-field input, .ok-field select,
+.ok-field-sm input, .ok-foot-field select, .ok-foot-field input {
+  width: 100%; padding: 10px 12px; border-radius: 12px;
+  border: 1px solid var(--border); background: var(--surface); color: var(--text);
+  font-size: .9rem; outline: none; transition: border-color .15s, box-shadow .15s;
+}
+.ok-field input:focus, .ok-field select:focus, .ok-field-sm input:focus {
+  border-color: var(--g-blue); box-shadow: 0 0 0 3px rgba(26,115,232,.18);
+}
+.ok-inline { display: flex; gap: 8px; align-items: flex-end; flex-wrap: wrap; margin-bottom: 10px; }
+.ok-inline.hidden { display: none; }
+.ok-inline input[type="text"] { padding: 10px 12px; border-radius: 12px; border: 1px solid var(--border); background: var(--surface); color: var(--text); }
+.ok-hint { font-size: .75rem; color: var(--text-2); margin: 4px 0 8px; line-height: 1.4; }
+
+/* ---- Knappar ---- */
+.ok-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  padding: 10px 14px; border-radius: 9999px; font-weight: 700; font-size: .85rem;
+  border: 1px solid var(--border); background: var(--surface); color: var(--text);
+  cursor: pointer; transition: transform .12s, box-shadow .15s, background .15s; width: 100%; margin-bottom: 8px;
+}
+.ok-btn:hover { transform: translateY(-1px); box-shadow: var(--shadow-1); }
+.ok-btn:active { transform: translateY(0); }
+.ok-btn-primary { background: var(--g-blue); border-color: var(--g-blue); color: #fff; }
+.ok-btn-primary:hover { background: var(--g-blue-2); }
+.ok-btn-soft { background: var(--surface-2); }
+.ok-btn-warn { background: #fef7e0; border-color: var(--g-yellow); color: #7a5900; }
+.dark .ok-btn-warn { background: #3d2e00; color: #fdd663; }
+.ok-btn-danger { background: var(--g-red); border-color: var(--g-red); color: #fff; }
+.ok-btn-danger:hover { background: #c5221f; }
+
+/* ---- Toggles (switch) ---- */
+.ok-toggle { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 9px 0; cursor: pointer; }
+.ok-toggle > span { font-size: .88rem; color: var(--text); flex: 1; }
+.ok-switch { appearance: none; -webkit-appearance: none; position: relative; width: 44px; height: 24px;
+  border-radius: 9999px; background: var(--border); cursor: pointer; transition: background .2s; flex: 0 0 auto; }
+.ok-switch::after { content: ""; position: absolute; top: 2px; left: 2px; width: 20px; height: 20px;
+  border-radius: 50%; background: #fff; transition: transform .2s; box-shadow: var(--shadow-1); }
+.ok-switch:checked { background: var(--g-green); }
+.ok-switch:checked::after { transform: translateX(20px); }
+
+/* ---- Profil ---- */
+.ok-profile-row { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; }
+.ok-avatar-big {
+  width: 64px; height: 64px; border-radius: 9999px; overflow: hidden; flex: 0 0 auto;
+  border: 3px solid var(--border); background: var(--surface-2); cursor: pointer; padding: 0;
+  display: flex; align-items: center; justify-content: center; font-size: 1.8rem; transition: border-color .15s;
+}
+.ok-avatar-big:hover { border-color: var(--g-blue); }
+.ok-avatar-big svg, .ok-avatar-big img { width: 100%; height: 100%; display: block; }
+
+/* ---- Kopplingar ---- */
+.ok-conn { display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  padding: 10px 12px; border: 1px solid var(--border); border-radius: 14px; margin-bottom: 8px; background: var(--surface); }
+.ok-conn > span { font-weight: 600; font-size: .9rem; }
+.ok-conn-btn { width: auto; margin: 0; padding: 7px 16px; }
+.ok-conn.connected .ok-conn-btn { background: var(--g-green); border-color: var(--g-green); color: #fff; }
+
+/* ---- Blockerade ---- */
+.ok-blocked { list-style: none; display: flex; flex-direction: column; gap: 6px; margin-top: 6px; }
+.ok-blocked li { display: flex; align-items: center; justify-content: space-between;
+  padding: 8px 12px; background: var(--surface-2); border-radius: 10px; font-size: .85rem; }
+.ok-blocked button { border: none; background: none; cursor: pointer; color: var(--g-red); font-weight: 700; }
+
+/* ---- Statistik ---- */
+.ok-stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 14px; }
+.ok-stat { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 12px 8px; text-align: center; }
+.ok-stat-num { display: block; font-size: 1.3rem; font-weight: 800; color: var(--g-blue); }
+.ok-stat-lbl { font-size: .68rem; color: var(--text-2); }
+.ok-bars { display: flex; align-items: flex-end; gap: 6px; height: 88px; padding-top: 8px; }
+.ok-bar-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; height: 100%; justify-content: flex-end; }
+.ok-bar { width: 100%; border-radius: 6px 6px 0 0; background: linear-gradient(180deg, var(--g-blue-2), var(--g-blue)); min-height: 3px; transition: height .4s; }
+.ok-bar-lbl { font-size: .62rem; color: var(--text-2); }
+
+/* ---- Details / molnsynk ---- */
+.ok-details { border: 1px dashed var(--border); border-radius: 14px; padding: 10px 12px; margin-top: 8px; }
+.ok-details summary { cursor: pointer; font-weight: 700; font-size: .85rem; color: var(--text); }
+.ok-details[open] summary { margin-bottom: 10px; }
+
+/* ---- Danger zone ---- */
+.ok-danger h3 { color: var(--g-red); }
+.ok-danger { background: rgba(234,67,53,.05); border-radius: 14px; padding: 18px 14px; }
+
+/* ---- Avatar-väljare ---- */
+#okAvatarModal, #okLegalModal { z-index: 70; } /* över drawern (61) */
+.ok-avatar-modal { max-width: 460px; }
+.ok-avatar-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
+@media (max-width: 480px) { .ok-avatar-grid { grid-template-columns: repeat(4, 1fr); } }
+.ok-av-opt { border: 3px solid transparent; border-radius: 9999px; overflow: hidden; cursor: pointer; background: var(--surface-2); aspect-ratio: 1; padding: 0; transition: transform .12s, border-color .15s; }
+.ok-av-opt:hover { transform: scale(1.08); }
+.ok-av-opt.sel { border-color: var(--g-blue); box-shadow: 0 0 0 3px rgba(26,115,232,.25); }
+.ok-av-opt svg { width: 100%; height: 100%; display: block; }
+
+/* ---- Juridik-modal ---- */
+.ok-legal-modal { max-width: 620px; }
+.ok-legal-body { max-height: 62vh; overflow-y: auto; font-size: .88rem; line-height: 1.6; color: var(--text-2); }
+.ok-legal-body h4 { color: var(--text); font-weight: 700; margin: 14px 0 6px; }
+.ok-legal-body p { margin-bottom: 10px; }
+
+/* ---- Footer ---- */
+.ok-footer { border-top: 1px solid var(--border); background: var(--surface); margin-top: 40px; }
+.ok-footer-inner { max-width: 64rem; margin: 0 auto; padding: 32px 16px 16px;
+  display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 28px; }
+@media (max-width: 640px) { .ok-footer-inner { grid-template-columns: 1fr; gap: 20px; } }
+.ok-footer-col h4 { font-weight: 800; font-size: .85rem; margin-bottom: 12px; color: var(--text); }
+.ok-foot-field { display: flex; flex-direction: column; gap: 4px; margin-bottom: 10px; }
+.ok-foot-field > span { font-size: .72rem; color: var(--text-2); }
+.ok-link { display: block; background: none; border: none; padding: 5px 0; cursor: pointer;
+  color: var(--text-2); font-size: .85rem; text-align: left; transition: color .15s; }
+.ok-link:hover { color: var(--g-blue); text-decoration: underline; }
+.ok-footer-bottom { max-width: 64rem; margin: 0 auto; padding: 14px 16px;
+  border-top: 1px solid var(--border); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;
+  font-size: .75rem; color: var(--text-2); }
+
+/* ---- Toast ---- */
+.ok-toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(calc(100% + 48px));
+  background: var(--text); color: var(--bg); padding: 12px 20px; border-radius: 9999px;
+  font-size: .85rem; font-weight: 600; box-shadow: var(--shadow-3); z-index: 80;
+  opacity: 0; visibility: hidden; pointer-events: none;
+  transition: transform .3s ease, opacity .3s ease, visibility 0s linear .3s; max-width: 90vw; }
+.ok-toast.show { transform: translateX(-50%) translateY(0); opacity: 1; visibility: visible; pointer-events: auto;
+  transition: transform .3s ease, opacity .3s ease, visibility 0s; }
+
+/* ---- Paus-påminnelse ---- */
+.ok-break-toast { position: fixed; bottom: 24px; right: 24px; max-width: 320px;
+  background: var(--surface); border: 1px solid var(--border); border-left: 4px solid var(--g-green);
+  border-radius: 14px; padding: 14px 16px; box-shadow: var(--shadow-3); z-index: 80;
+  display: flex; align-items: flex-start; gap: 10px; font-size: .85rem; color: var(--text);
+  animation: okSlideIn .3s ease; }
+.ok-break-toast.hidden { display: none; }
+@keyframes okSlideIn { from { transform: translateX(120%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+/* ---- Batterismart läge: stäng av tunga animationer ---- */
+.power-save .aurora::before, .power-save .particle, .power-save #celebrateLayer { animation: none !important; }
+.power-save * { transition-duration: 0s !important; }
+
+
+/* ==========================================================================
+   HIDE the floating Gemini chat button (round sparkle) – requested removal.
+   It was overlapping the bottom of the screen / taskbar. Hidden globally.
+   To bring it back, delete this block.
+   ========================================================================== */
+.chat-fab,
+.chat-panel { display: none !important; }
+
+/* Hide the little 🐞 AI-debug button + its panel (the "tiny bump" near the
+   footer). Error-catching in debug-guard.js still runs, so nothing breaks. */
+#okDbgBtn,
+#okDbgPanel { display: none !important; }

@@ -1,0 +1,57 @@
+/* =========================================================================
+   Ordkollen – Labbet & Maskot (fristående stillager)
+   ========================================================================= */
+#view-lab { max-width: 1000px; margin: 0 auto; padding: 8px 4px 80px; }
+.lab-head { display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; margin-top:8px; }
+.lab-head h2 { font-size: 1.4rem; font-weight: 800; color: var(--text); margin:0; }
+.lab-sub { color: var(--text-2); font-size: .9rem; margin: 6px 0 14px; }
+
+.lab-grid { display:grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px; }
+.lab-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 16px;
+  cursor: pointer; transition: transform .15s, border-color .15s, box-shadow .15s; display:flex; flex-direction:column; gap:6px; }
+.lab-card:hover { border-color: var(--g-blue); transform: translateY(-3px); box-shadow: var(--shadow-2, 0 8px 24px rgba(0,0,0,.12)); }
+.lab-card .icon { font-size: 28px; line-height:1; }
+.lab-card h4 { margin:0; font-size: 1rem; font-weight:700; color: var(--text); }
+.lab-card p { margin:0; font-size: .78rem; color: var(--text-2); line-height:1.35; }
+
+.lab-btn { display:inline-block; padding: 9px 16px; border-radius: 9999px; border:1px solid var(--border);
+  background: var(--surface); color: var(--text); font-weight:600; font-size:.85rem; cursor:pointer; transition: .15s; }
+.lab-btn:hover { background: var(--surface-2); }
+.lab-btn-primary { background: var(--g-blue); border-color: var(--g-blue); color:#fff; }
+.lab-btn-primary:hover { filter: brightness(1.05); }
+.lab-input { width:100%; padding:10px 12px; border-radius:12px; border:1px solid var(--border);
+  background: var(--surface); color: var(--text); font-size:.9rem; outline:none; }
+.lab-input:focus { border-color: var(--g-blue); box-shadow: 0 0 0 3px rgba(26,115,232,.18); }
+.lab-output { margin-top:6px; padding:14px; border-radius:12px; background: var(--surface-2);
+  border:1px solid var(--border); white-space:pre-wrap; color: var(--text); font-size:.88rem; line-height:1.5; }
+.lab-output.hidden, .lab-card.hidden { display:none; }
+
+/* Modal */
+#labModal { position: fixed; inset:0; background: rgba(0,0,0,.5); z-index: 200; display:flex; align-items:center; justify-content:center; padding:16px; }
+#labModal.hidden { display:none; }
+#labModalCard { background: var(--surface); width:100%; max-width:600px; max-height:90vh; border-radius:18px;
+  display:flex; flex-direction:column; overflow:hidden; box-shadow: var(--shadow-3, 0 20px 60px rgba(0,0,0,.3)); }
+.lab-modal-head { display:flex; justify-content:space-between; align-items:center; padding:14px 18px;
+  border-bottom:1px solid var(--border); background: var(--surface-2); }
+.lab-modal-head h3 { margin:0; font-size:1.05rem; font-weight:700; color: var(--text); }
+#labModalClose { background:none; border:none; font-size:1.6rem; line-height:1; cursor:pointer; color: var(--text-2); }
+#labModalClose:hover { color:#ea4335; }
+#labModalBody { padding:18px; overflow-y:auto; display:flex; flex-direction:column; gap:12px; }
+
+/* Bingo */
+.bingo-board { display:grid; grid-template-columns: repeat(5,1fr); gap:5px; background: var(--g-blue); padding:5px; border-radius:10px; }
+.bingo-cell { background: var(--surface); aspect-ratio:1; display:flex; align-items:center; justify-content:center;
+  text-align:center; font-size:.66rem; font-weight:700; cursor:pointer; word-break:break-word; padding:3px; border-radius:6px;
+  color: var(--text); transition:.15s; }
+.bingo-cell.marked { background: var(--g-yellow); color:#202124; transform: scale(.94); }
+.bingo-cell.free { background: var(--g-green); color:#fff; cursor:default; }
+
+/* Konfetti */
+.ok-confetti { position: fixed; width:10px; height:10px; z-index:9999; border-radius:2px;
+  animation: okFall linear forwards; pointer-events:none; }
+@keyframes okFall { to { transform: translateY(105vh) rotate(720deg); opacity:0; } }
+
+/* Dyslexi-läge */
+.dyslexic-mode, .dyslexic-mode * { letter-spacing:.04em !important; line-height:1.7 !important; word-spacing:.1em !important; }
+.dyslexic-mode { font-family: "Comic Sans MS","Trebuchet MS",Verdana,sans-serif !important; }
+

@@ -1,0 +1,81 @@
+/* =========================================================================
+   Ordkollen – UNDERHÅLLNING: MJUKA ÖVERGÅNGAR (fade / appear) – ALLA ENHETER
+   ------------------------------------------------------------------------
+   Ger en mjuk "tonas in / glider upp"-känsla:
+     • när man ÖPPNAR Underhållning (YouTube-vyn)
+     • när man ÖPPNAR en video (titt-sidan)
+     • när man GÅR TILLBAKA / lämnar videon (flödet byggs om och tonas in)
+   Gäller laptop, iPad, surfplatta OCH telefon (ej enhetslåst).
+   Respekterar "minska rörelse" (prefers-reduced-motion) → stängs av då.
+   Fristående lager – rör ingen logik; bara visuella animationer.
+   ========================================================================= */
+
+@media (prefers-reduced-motion: no-preference) {
+
+  @keyframes etFadeIn   { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes etFadeUp   { from { opacity: 0; transform: translateY(12px); }
+                          to   { opacity: 1; transform: translateY(0); } }
+  @keyframes etRise     { from { opacity: 0; transform: translateY(18px) scale(.985); }
+                          to   { opacity: 1; transform: translateY(0) scale(1); } }
+
+  /* ---- Öppna hela Underhållnings-vyn → mjuk fade-in -------------------- */
+  /* När appens vy-växlare tar bort .hidden visas elementet igen och
+     animationen spelas på nytt (display:none nollställer animationer).     */
+  #view-underhallning:not(.hidden) {
+    animation: etFadeIn .42s ease both;
+  }
+  #view-underhallning:not(.hidden) .et-shell {
+    animation: etRise .5s cubic-bezier(.22,.61,.36,1) both;
+  }
+
+  /* ---- Innehåll i flödet tonas/glider in (gäller även vid "tillbaka",
+     eftersom flödet byggs om varje gång) -------------------------------- */
+  #view-underhallning .et-banner-strip,
+  #view-underhallning .et-hero-sm,
+  #view-underhallning .et-section-h,
+  #view-underhallning .et-keyprompt,
+  #view-underhallning .et-livehint {
+    animation: etFadeUp .45s ease both;
+  }
+
+  /* Videokort tonas in – även nya kort som laddas vid oändlig scroll */
+  #view-underhallning .et-card {
+    animation: etFadeUp .4s ease both;
+  }
+  /* En liten trappa på de första korten för en behaglig "appear"-känsla */
+  #view-underhallning .et-feed-grid > .et-card:nth-child(1),
+  #view-underhallning #etReco > .et-card:nth-child(1) { animation-delay: .02s; }
+  #view-underhallning .et-feed-grid > .et-card:nth-child(2),
+  #view-underhallning #etReco > .et-card:nth-child(2) { animation-delay: .06s; }
+  #view-underhallning .et-feed-grid > .et-card:nth-child(3),
+  #view-underhallning #etReco > .et-card:nth-child(3) { animation-delay: .10s; }
+  #view-underhallning .et-feed-grid > .et-card:nth-child(4),
+  #view-underhallning #etReco > .et-card:nth-child(4) { animation-delay: .14s; }
+  #view-underhallning .et-feed-grid > .et-card:nth-child(5),
+  #view-underhallning #etReco > .et-card:nth-child(5) { animation-delay: .18s; }
+
+  /* ---- Öppna en video (titt-sidan) → spelaren + texterna tonas in ----- */
+  #view-underhallning .et-watch {
+    animation: etFadeIn .35s ease both;
+  }
+  #view-underhallning .et-watch .et-player {
+    animation: etRise .5s cubic-bezier(.22,.61,.36,1) both;
+  }
+  #view-underhallning .et-watch-title  { animation: etFadeUp .45s ease .04s both; }
+  #view-underhallning .et-watch-bar    { animation: etFadeUp .45s ease .08s both; }
+  #view-underhallning .et-watch-desc   { animation: etFadeUp .45s ease .12s both; }
+  #view-underhallning .et-reco h3      { animation: etFadeUp .45s ease .14s both; }
+
+  /* AI-översikt-panelen under videon tonas in med SAMMA övergång som resten
+     av titt-sidan (samma "YouTube"-fade som titel/rad/beskrivning). */
+  #view-underhallning .et-ai           { animation: etFadeUp .45s ease .16s both; }
+
+  /* ---- Bottenmenyn (telefon/surfplatta) glider upp när vyn öppnas ------ */
+  html.ok-mobileyt #view-underhallning:not(.hidden) .etm-bottomnav {
+    animation: etFadeUp .4s ease .05s both;
+  }
+
+  /* Hover-finish: mjuka kort-övergångar på pekskärm + mus */
+  #view-underhallning .et-thumb,
+  #view-underhallning .et-reco-thumb { transition: outline-color .18s ease, transform .18s ease; }
+}

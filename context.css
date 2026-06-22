@@ -1,0 +1,193 @@
+/* =========================================================================
+   Ordkollen – MILJÖ & KONTEXT (CEFR A1–C2)
+   Visar i vilken miljö/sammanhang ett ord används, nivå för nivå (A1→C2).
+   Fristående lager – injiceras i resultatkortet via DOM. Rör inte app.js.
+   ========================================================================= */
+.ok-ctx { margin: 4px 0 16px; }
+.ok-ctx-head {
+  font-weight: 600; margin-bottom: 10px;
+  display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+}
+.ok-ctx-head .ok-ctx-count { color: var(--text-2, #5f6368); font-weight: 400; font-size: .75rem; }
+.ok-ctx-lead { font-size: .82rem; color: var(--text-2, #5f6368); margin: -4px 0 12px; line-height: 1.45; }
+
+.ok-ctx-list { display: flex; flex-direction: column; gap: 8px; }
+
+.ok-ctx-row {
+  display: grid; grid-template-columns: 52px 1fr; gap: 12px; align-items: start;
+  padding: 11px 13px; border-radius: 12px;
+  background: var(--surface-2, #f1f3f4);
+  border: 1px solid var(--border, #e0e0e0);
+  border-left: 4px solid var(--ok-ctx-accent, #1a73e8);
+}
+.ok-ctx-badge {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 44px; padding: 4px 0; border-radius: 9999px;
+  font-weight: 800; font-size: .8rem; letter-spacing: .03em;
+  color: #fff; background: var(--ok-ctx-accent, #1a73e8);
+}
+.ok-ctx-body { min-width: 0; }
+.ok-ctx-level { font-size: .68rem; text-transform: uppercase; letter-spacing: .05em;
+  color: var(--text-2, #5f6368); font-weight: 700; margin-bottom: 3px; }
+.ok-ctx-ex { font-size: .9rem; color: var(--text, #202124); line-height: 1.45; font-weight: 600; }
+.ok-ctx-where { font-size: .76rem; color: var(--text-2, #5f6368); line-height: 1.4; margin-top: 3px; }
+.ok-ctx-where::before { content: "📍 "; }
+
+/* Nivåfärger (samma skala i ljust/mörkt läge) */
+.ok-ctx-a1 { --ok-ctx-accent: #34a853; }
+.ok-ctx-a2 { --ok-ctx-accent: #1a9e6c; }
+.ok-ctx-b1 { --ok-ctx-accent: #1a73e8; }
+.ok-ctx-b2 { --ok-ctx-accent: #4254c5; }
+.ok-ctx-c1 { --ok-ctx-accent: #8a3ffc; }
+.ok-ctx-c2 { --ok-ctx-accent: #c026d3; }
+
+.ok-ctx-foot { margin-top: 10px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.ok-ctx-btn {
+  padding: 7px 14px; border-radius: 9999px; cursor: pointer;
+  border: 1px solid var(--border, #e0e0e0); background: var(--surface, #fff);
+  color: var(--text, #202124); font-weight: 600; font-size: .8rem; transition: .15s;
+}
+.ok-ctx-btn:hover { background: var(--surface-2, #f1f3f4); }
+.ok-ctx-btn:disabled { opacity: .6; cursor: default; }
+.ok-ctx-note { font-size: .74rem; color: var(--text-2, #5f6368); }
+.ok-ctx-status { font-size: .78rem; color: #8a3ffc; }
+.ok-ctx-status.err { color: #ea4335; }
+
+@media (max-width: 520px) {
+  .ok-ctx-row { grid-template-columns: 44px 1fr; gap: 9px; padding: 9px 10px; }
+  .ok-ctx-badge { min-width: 38px; font-size: .72rem; }
+}
+
+/* =========================================================================
+   Omskrivningsutmaning ("Gör meningen mer avancerad") – under Miljö & kontext
+   ========================================================================= */
+.ok-rw {
+  margin: 6px 0 16px; padding: 14px 15px; border-radius: 14px;
+  border: 1px solid var(--border, #e0e0e0);
+  background: var(--surface-2, #f1f3f4);
+  border-left: 4px solid #c026d3;
+}
+.ok-rw-head { font-weight: 700; margin: 0 0 4px; display: flex; align-items: center; gap: 6px; }
+.ok-rw-task { font-size: .82rem; color: var(--text-2, #5f6368); margin: 0 0 10px; line-height: 1.45; }
+.ok-rw-base {
+  font-size: .9rem; font-weight: 600; color: var(--text, #202124); line-height: 1.45;
+  background: var(--surface, #fff); border: 1px solid var(--border, #e0e0e0);
+  border-radius: 10px; padding: 9px 12px; margin-bottom: 10px;
+}
+.ok-rw-base::before { content: "\1F4C4  "; }
+.ok-rw-input {
+  width: 100%; min-height: 70px; resize: vertical; box-sizing: border-box;
+  border: 1px solid var(--border, #e0e0e0); border-radius: 10px; padding: 10px 12px;
+  font-size: .9rem; font-family: inherit; color: var(--text, #202124);
+  background: var(--surface, #fff); line-height: 1.45;
+}
+.ok-rw-input:focus { outline: none; border-color: #c026d3; box-shadow: 0 0 0 3px rgba(192,38,211,.16); }
+.ok-rw-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+.ok-rw-feedback { margin-top: 10px; font-size: .85rem; line-height: 1.5; display: none; }
+.ok-rw-feedback.show { display: block; }
+.ok-rw-feedback .ok-rw-card {
+  background: var(--surface, #fff); border: 1px solid var(--border, #e0e0e0);
+  border-radius: 10px; padding: 10px 12px; margin-top: 8px;
+}
+.ok-rw-feedback .ok-rw-label { font-size: .7rem; text-transform: uppercase; letter-spacing: .05em;
+  font-weight: 700; color: var(--text-2, #5f6368); margin-bottom: 3px; }
+.ok-rw-status { font-size: .8rem; color: #c026d3; margin-top: 8px; display: block; }
+.ok-rw-status.err { color: #ea4335; }
+
+/* Resultat + ordförslag i omskrivningsutmaningen */
+.ok-rw-card.ok-rw-good { border-left: 4px solid #34a853; }
+.ok-rw-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+.ok-rw-chip {
+  display: inline-block; padding: 5px 11px; border-radius: 9999px;
+  background: var(--surface-2, #f1f3f4); border: 1px solid var(--border, #e0e0e0);
+  color: var(--text, #202124); font-size: .8rem; font-weight: 600; cursor: pointer;
+  transition: background .12s, border-color .12s;
+}
+.ok-rw-chip:hover { background: var(--surface, #fff); border-color: #c026d3; }
+
+.ok-rw-card.ok-rw-warn { border-left: 4px solid #fbbc04; }
+
+/* Uppskattad CEFR-niva for elevens egen mening */
+.ok-rw-card.ok-rw-level { border-left: 4px solid #1a73e8; }
+.ok-rw-card.ok-rw-level .ok-rw-label { color: #1a73e8; }
+
+/* Grammatik & en/ett-rattning */
+.ok-rw-card.ok-rw-grammar { border-left: 4px solid #c026d3; }
+.ok-rw-card.ok-rw-grammar .ok-rw-label { color: #c026d3; }
+.ok-rw-corrected {
+  background: var(--surface-2, #f1f3f4); border: 1px solid var(--border, #e0e0e0);
+  border-radius: 8px; padding: 7px 10px; margin: 2px 0 8px; line-height: 1.5;
+}
+.ok-rw-corr-tag {
+  display: inline-block; font-size: .62rem; font-weight: 800; text-transform: uppercase;
+  letter-spacing: .05em; color: #34a853; margin-right: 6px;
+}
+.ok-rw-fix {
+  background: rgba(192,38,211,.16); color: inherit; border-radius: 4px;
+  padding: 0 3px; font-weight: 700;
+}
+.ok-rw-errlist { margin: 0; padding-left: 0; list-style: none; }
+.ok-rw-errlist li { padding: 6px 0; border-top: 1px dashed var(--border, #e0e0e0); }
+.ok-rw-errlist li:first-child { border-top: none; padding-top: 0; }
+.ok-rw-errtype {
+  display: inline-block; font-size: .64rem; font-weight: 800; text-transform: uppercase;
+  letter-spacing: .04em; color: #fff; background: #c026d3;
+  border-radius: 9999px; padding: 1px 8px; margin-right: 6px;
+}
+.ok-rw-errlist s { color: #ea4335; }
+.ok-rw-errlist b { color: #34a853; }
+.ok-rw-errwhy { font-size: .8rem; color: var(--text-2, #5f6368); margin-top: 3px; line-height: 1.45; }
+
+/* ---- Skrivhjalp: meningsbyggnad, bindeord & mallar (A1-C2) ---- */
+.ok-sw {
+  margin-top: 14px; border: 1px solid var(--border, #e0e0e0);
+  border-radius: 12px; background: var(--surface, #fff); overflow: hidden;
+}
+.ok-sw-summary {
+  cursor: pointer; list-style: none; padding: 12px 14px;
+  font-weight: 700; font-size: .88rem; color: var(--text, #202124);
+  display: flex; align-items: center; gap: 6px;
+  background: var(--surface-2, #f1f3f4);
+}
+.ok-sw-summary::-webkit-details-marker { display: none; }
+.ok-sw-summary::after { content: "▾"; margin-left: auto; transition: transform .2s; color: var(--text-2, #5f6368); }
+.ok-sw[open] .ok-sw-summary::after { transform: rotate(180deg); }
+.ok-sw-lead { font-size: .8rem; color: var(--text-2, #5f6368); margin: 10px 14px 0; line-height: 1.45; }
+
+.ok-sw-levels { display: flex; flex-wrap: wrap; gap: 6px; padding: 12px 14px 4px; }
+.ok-sw-lvl {
+  border: 1px solid var(--border, #e0e0e0); background: var(--surface-2, #f1f3f4);
+  color: var(--text, #202124); border-radius: 9999px; padding: 6px 12px;
+  font-weight: 700; font-size: .8rem; cursor: pointer; transition: .12s;
+  display: inline-flex; align-items: center; gap: 5px;
+}
+.ok-sw-lvl:hover { border-color: #1a73e8; }
+.ok-sw-lvl.sel { background: #1a73e8; border-color: #1a73e8; color: #fff; }
+.ok-sw-lvlname { font-weight: 500; font-size: .72rem; opacity: .85; }
+
+.ok-sw-panels { padding: 6px 14px 14px; }
+.ok-sw-wrap { display: none; }
+.ok-sw-wrap.show { display: block; }
+.ok-sw-row { margin: 12px 0; }
+.ok-sw-rl {
+  display: block; font-size: .7rem; text-transform: uppercase; letter-spacing: .05em;
+  font-weight: 700; color: var(--text-2, #5f6368); margin-bottom: 6px;
+}
+.ok-sw-text { font-size: .84rem; color: var(--text, #202124); line-height: 1.5; margin: 0; }
+.ok-sw-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.ok-sw-chip {
+  border: 1px solid var(--border, #e0e0e0); background: var(--surface-2, #f1f3f4);
+  color: var(--text, #202124); border-radius: 9999px; padding: 5px 11px;
+  font-size: .8rem; font-weight: 600; cursor: pointer; transition: background .12s, border-color .12s;
+}
+.ok-sw-chip:hover { background: var(--surface, #fff); border-color: #1a73e8; }
+.ok-sw-chip.frame { border-style: dashed; }
+.ok-sw-avoid .ok-sw-text { color: #b8860b; }
+
+
+/* ---- AI-skrivtips i Skrivhjälpen (ChatGPT/OpenAI) ---- */
+.ok-sw-ai { margin: 10px 14px 14px; display: flex; flex-direction: column; gap: 8px; }
+.ok-sw-ai .ok-sw-aibtn { align-self: flex-start; }
+.ok-sw-aistatus { font-size: .78rem; color: var(--text-2, #5f6368); }
+.ok-sw-aistatus.err { color: #d93025; }
+.ok-sw-aiout:empty { display: none; }

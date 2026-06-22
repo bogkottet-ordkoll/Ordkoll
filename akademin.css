@@ -1,0 +1,146 @@
+/* =========================================================================
+   Ordkollen – AKADEMIN (CEFR-styrd AI-träning) – FRISTÅENDE STILLAGER
+   Läggs ovanpå styles.css/glass.css. Rör inte kärnan – endast egna klasser.
+   ========================================================================= */
+
+#view-akademin { max-width: 1040px; margin: 0 auto; padding: 8px 4px 90px; }
+
+.ak-head { display:flex; justify-content:space-between; align-items:flex-start; gap:14px; flex-wrap:wrap; margin-top:6px; }
+.ak-head h2 { font-size: 1.5rem; font-weight: 800; color: var(--text); margin:0; }
+.ak-sub { color: var(--text-2); font-size: .9rem; margin: 6px 0 12px; max-width: 720px; line-height:1.45; }
+
+/* Nivåväljare (A1–C2) */
+.ak-levels { display:flex; gap:6px; flex-wrap:wrap; align-items:center; }
+.ak-levels .ak-lvl-label { font-size:.78rem; font-weight:700; color:var(--text-2); margin-right:4px; }
+.ak-lvl {
+  border:1px solid var(--border); background:var(--surface); color:var(--text);
+  border-radius:9999px; padding:7px 14px; font-weight:800; font-size:.82rem; cursor:pointer;
+  transition: transform .12s, background .15s, border-color .15s, color .15s;
+}
+.ak-lvl:hover { transform: translateY(-2px); }
+.ak-lvl.sel { background: var(--g-blue); border-color: var(--g-blue); color:#fff; box-shadow: 0 6px 16px rgba(26,115,232,.3); }
+
+/* Plan-remsa */
+.ak-planbar {
+  margin: 4px 0 18px; padding: 12px 16px; border-radius: 14px;
+  background: var(--surface); border:1px solid var(--border);
+  border-left: 4px solid var(--g-green); color: var(--text);
+  font-size:.86rem; line-height:1.5; display:flex; gap:10px; align-items:flex-start;
+}
+.ak-planbar.hidden { display:none; }
+.ak-planbar .ak-plan-txt { white-space:pre-wrap; }
+
+/* Kategorier & kort */
+.ak-cat { margin-top: 22px; }
+.ak-cat-h { display:flex; align-items:center; gap:8px; font-size:1.05rem; font-weight:800; color:var(--text); margin:0 0 10px; }
+.ak-cat-h .ak-cat-tag { font-size:.66rem; font-weight:700; color:var(--text-2); background:var(--surface-2); border:1px solid var(--border); padding:2px 8px; border-radius:9999px; }
+.ak-grid { display:grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 14px; }
+.ak-card {
+  background: var(--surface); border:1px solid var(--border); border-radius:16px; padding:16px;
+  cursor:pointer; transition: transform .15s, border-color .15s, box-shadow .15s;
+  display:flex; flex-direction:column; gap:6px; position:relative; overflow:hidden;
+}
+.ak-card:hover { border-color: var(--g-blue); transform: translateY(-3px); box-shadow: var(--shadow-2, 0 8px 24px rgba(0,0,0,.12)); }
+.ak-card .ak-ico { font-size:28px; line-height:1; }
+.ak-card h4 { margin:0; font-size:1rem; font-weight:800; color:var(--text); }
+.ak-card p { margin:0; font-size:.78rem; color:var(--text-2); line-height:1.4; }
+.ak-card .ak-badge { position:absolute; top:10px; right:10px; font-size:.6rem; font-weight:800; letter-spacing:.04em;
+  padding:3px 8px; border-radius:9999px; background:var(--g-blue); color:#fff; }
+.ak-card .ak-badge.ai { background: linear-gradient(90deg,#1a73e8,#9b59ff); }
+
+/* Knappar / fält */
+.ak-btn { display:inline-flex; align-items:center; gap:6px; padding:9px 16px; border-radius:9999px; border:1px solid var(--border);
+  background: var(--surface); color: var(--text); font-weight:700; font-size:.85rem; cursor:pointer; transition:.15s; }
+.ak-btn:hover { background: var(--surface-2); }
+.ak-btn-primary { background: var(--g-blue); border-color: var(--g-blue); color:#fff; }
+.ak-btn-primary:hover { background:#1765cc; }
+.ak-btn:disabled { opacity:.55; cursor:not-allowed; }
+.ak-input, .ak-textarea, .ak-select {
+  width:100%; box-sizing:border-box; padding:11px 14px; border-radius:12px; border:1px solid var(--border);
+  background: var(--surface); color: var(--text); font-size:.9rem; font-family:inherit; outline:none;
+}
+.ak-textarea { resize:vertical; min-height:120px; line-height:1.5; }
+.ak-input:focus, .ak-textarea:focus, .ak-select:focus { border-color: var(--g-blue); box-shadow:0 0 0 3px rgba(26,115,232,.16); }
+.ak-row { display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+.ak-row > * { flex: 0 0 auto; }
+.ak-row .grow { flex:1 1 160px; }
+.ak-label { font-size:.78rem; font-weight:700; color:var(--text-2); margin:2px 0 4px; display:block; }
+
+/* Modal */
+#akModal { position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:120; display:flex; align-items:center; justify-content:center; padding:18px; }
+#akModal.hidden { display:none; }
+#akModalCard { background:var(--surface); border:1px solid var(--border); border-radius:20px; width:min(720px,100%);
+  max-height:88vh; display:flex; flex-direction:column; box-shadow:0 24px 70px rgba(0,0,0,.35); overflow:hidden; }
+.ak-modal-head { display:flex; align-items:center; justify-content:space-between; padding:16px 18px; border-bottom:1px solid var(--border); }
+.ak-modal-head h3 { margin:0; font-size:1.1rem; font-weight:800; color:var(--text); }
+#akModalClose { background:transparent; border:0; font-size:1.8rem; line-height:1; cursor:pointer; color:var(--text-2); padding:0 4px; }
+#akModalClose:hover { color:#ea4335; }
+#akModalBody { padding:18px; overflow-y:auto; display:flex; flex-direction:column; gap:12px; }
+
+/* AI-output */
+.ak-output { background:var(--surface-2); border:1px solid var(--border); border-radius:12px; padding:14px 16px;
+  color:var(--text); font-size:.9rem; line-height:1.6; white-space:pre-wrap; word-break:break-word; }
+.ak-output.hidden { display:none; }
+.ak-output h1,.ak-output h2,.ak-output h3 { font-size:1rem; margin:.4em 0 .2em; }
+.ak-muted { color:var(--text-2); font-size:.8rem; }
+.ak-thinking { color:var(--text-2); font-style:italic; }
+
+/* Meningsbyggare – ordkort */
+.ak-build-target { font-size:.82rem; color:var(--text-2); }
+.ak-tilebank, .ak-tileline { display:flex; flex-wrap:wrap; gap:8px; min-height:48px; padding:10px;
+  border:1px dashed var(--border); border-radius:12px; background:var(--surface-2); }
+.ak-tileline { border-style:solid; background:var(--surface); }
+.ak-tile { padding:8px 13px; border-radius:10px; border:1px solid var(--border); background:var(--surface);
+  font-weight:700; font-size:.9rem; color:var(--text); cursor:pointer; transition: transform .1s, background .15s; }
+.ak-tile:hover { background:var(--g-blue); color:#fff; border-color:var(--g-blue); transform: translateY(-2px); }
+
+/* Quiz */
+.ak-quiz-q { font-weight:700; color:var(--text); margin:6px 0 8px; }
+.ak-quiz-opts { display:flex; flex-direction:column; gap:8px; }
+.ak-opt { text-align:left; padding:11px 14px; border-radius:12px; border:1px solid var(--border); background:var(--surface);
+  color:var(--text); font-size:.88rem; cursor:pointer; transition:.12s; }
+.ak-opt:hover { border-color:var(--g-blue); }
+.ak-opt.correct { background: rgba(52,168,83,.16); border-color:var(--g-green); }
+.ak-opt.wrong { background: rgba(234,67,53,.14); border-color:var(--g-red); }
+.ak-opt:disabled { cursor:default; }
+.ak-explain { font-size:.82rem; color:var(--text-2); margin-top:6px; padding-left:4px; border-left:3px solid var(--g-yellow); padding:6px 10px; background:var(--surface-2); border-radius:8px; }
+.ak-quiz-prog { font-size:.78rem; color:var(--text-2); font-weight:700; }
+
+/* Checklista */
+.ak-check-item { display:flex; align-items:flex-start; gap:10px; padding:10px 12px; border:1px solid var(--border);
+  border-radius:12px; background:var(--surface); cursor:pointer; transition:.12s; }
+.ak-check-item:hover { border-color:var(--g-blue); }
+.ak-check-item.done { background: rgba(52,168,83,.12); border-color:var(--g-green); }
+.ak-check-item .box { width:22px; height:22px; flex:0 0 auto; border-radius:6px; border:2px solid var(--border);
+  display:flex; align-items:center; justify-content:center; font-size:14px; color:#fff; }
+.ak-check-item.done .box { background:var(--g-green); border-color:var(--g-green); }
+.ak-check-item span.txt { font-size:.88rem; color:var(--text); line-height:1.4; }
+
+/* Förloppsmätare (svaghetsanalys/checklista) */
+.ak-bars { display:flex; flex-direction:column; gap:10px; }
+.ak-bar-row { display:flex; align-items:center; gap:10px; }
+.ak-bar-name { width:130px; flex:0 0 auto; font-size:.82rem; font-weight:700; color:var(--text); }
+.ak-bar-track { flex:1 1 auto; height:14px; border-radius:9999px; background:var(--surface-2); overflow:hidden; border:1px solid var(--border); }
+.ak-bar-fill { height:100%; border-radius:9999px; background:linear-gradient(90deg,#1a73e8,#34a853); transition:width .5s; }
+.ak-bar-lvl { width:44px; flex:0 0 auto; text-align:right; font-size:.8rem; font-weight:800; color:var(--g-blue); }
+
+/* Läsläge – klickbara ord */
+.ak-read { line-height:2; font-size:1rem; color:var(--text); }
+.ak-word { cursor:pointer; border-radius:4px; padding:0 1px; transition: background .12s; }
+.ak-word:hover { background: var(--g-yellow); color:#202124; }
+.ak-pop { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:12px 14px;
+  box-shadow: var(--shadow-3, 0 10px 30px rgba(0,0,0,.22)); }
+.ak-pop h4 { margin:0 0 4px; font-size:1rem; color:var(--g-blue); display:flex; align-items:center; gap:8px; }
+.ak-pop .ak-pop-row { font-size:.84rem; color:var(--text); margin:4px 0; }
+.ak-pop .ak-pop-row b { color:var(--text-2); font-weight:700; }
+
+.ak-pill-tabs { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:4px; }
+.ak-pill { border:1px solid var(--border); background:var(--surface); color:var(--text); border-radius:9999px;
+  padding:7px 13px; font-size:.8rem; font-weight:700; cursor:pointer; transition:.12s; }
+.ak-pill:hover { background:var(--surface-2); }
+.ak-pill.sel { background:var(--g-blue); border-color:var(--g-blue); color:#fff; }
+
+@media (max-width:600px){
+  .ak-bar-name { width:96px; }
+  .ak-grid { grid-template-columns: 1fr 1fr; }
+}

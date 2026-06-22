@@ -1,0 +1,228 @@
+/* ==========================================================================
+   Ordkollen – "YouTube"-tema (UI-uppgradering)
+   Läggs OVANPÅ styles.css/glass.css. Ger appen en YouTube-liknande layout:
+   • Smal sticky masthead (logga + pill-sök + runda ikonknappar)
+   • Vänsterställd sidebar-meny (som YouTubes navigering)
+   • YouTube-röd accent, Roboto, rena kort
+   Rör INTE app.js eller HTML-strukturen – endast visuella overrides.
+   Allt gäller bara inuti #appView (inloggningsvyn lämnas orörd).
+   ========================================================================== */
+
+:root {
+  --yt-red:        #ff0033;
+  --yt-red-2:      #cc0029;
+  --yt-sidebar-w:  240px;
+  --yt-header-h:   60px;
+}
+.dark {
+  --yt-red:        #ff4060;
+  --yt-red-2:      #ff0033;
+}
+
+/* Typsnitt: Roboto-känsla i hela appen */
+#appView, #appView input, #appView button, #appView select, #appView textarea {
+  font-family: "Roboto", "Inter", system-ui, -apple-system, sans-serif;
+}
+
+/* ==========================================================================
+   1. MASTHEAD (toppraden)
+   ========================================================================== */
+#appView header {
+  background: var(--surface) !important;
+  border-bottom: 1px solid var(--border) !important;
+  backdrop-filter: none !important;
+  box-shadow: none;
+}
+/* Toppradens container – luftigare och full bredd som YouTube */
+#appView header > div:first-child {
+  max-width: none !important;
+  height: var(--yt-header-h);
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  padding-left: 16px !important;
+  padding-right: 16px !important;
+  gap: 16px;
+}
+
+/* Logga: behåll bara den rundade YouTube-formen.
+   Färg/symbol/bild styrs av branding.js (inline-stil) – inget !important här
+   så att din egna logotyp slår igenom. */
+#appView .logo-badge.logo-badge-sm {
+  border-radius: 8px !important;
+  box-shadow: none !important;
+}
+#appView header span.font-black {
+  letter-spacing: -.5px;
+  font-weight: 800;
+}
+
+/* Runda ikonknappar i högerkant (YouTube-stil) */
+#appView header #menuAvatarBtn,
+#appView header #settingsBtn,
+#appView header #logoutBtn,
+#appView header #themeToggle {
+  border: none !important;
+  background: transparent !important;
+  width: 40px; height: 40px;
+  display: inline-flex; align-items: center; justify-content: center;
+  border-radius: 9999px !important;
+  padding: 0 !important;
+  color: var(--text);
+  transition: background .15s ease;
+}
+#appView header #logoutBtn {
+  width: auto; padding: 0 14px !important;
+  border: 1px solid color-mix(in srgb, var(--yt-red) 55%, transparent) !important;
+  color: var(--yt-red) !important;
+  font-weight: 600; height: 36px; border-radius: 9999px !important;
+}
+#appView header #menuAvatarBtn:hover,
+#appView header #settingsBtn:hover,
+#appView header #themeToggle:hover {
+  background: var(--surface-2) !important;
+}
+#appView header #logoutBtn:hover {
+  background: color-mix(in srgb, var(--yt-red) 12%, transparent) !important;
+}
+
+/* ==========================================================================
+   2. SIDEBAR (navigeringen blir en vänstermeny)
+   ========================================================================== */
+#appView header nav {
+  position: fixed !important;
+  left: 0;
+  top: var(--yt-header-h);
+  bottom: 0;
+  width: var(--yt-sidebar-w);
+  max-width: var(--yt-sidebar-w);
+  margin: 0 !important;
+  padding: 12px 8px !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  gap: 2px !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  z-index: 9;
+}
+/* Snygg, smal scrollbar */
+#appView header nav::-webkit-scrollbar { width: 8px; }
+#appView header nav::-webkit-scrollbar-thumb {
+  background: var(--border); border-radius: 8px;
+}
+
+/* Varje flik = en rad i sidebaren */
+#appView header nav .navtab {
+  width: 100%;
+  text-align: left !important;
+  justify-content: flex-start;
+  white-space: nowrap;
+  margin: 0 !important;
+  padding: 10px 12px !important;
+  border-radius: 10px !important;
+  font-size: .95rem;
+  font-weight: 500;
+  color: var(--text);
+  display: flex; align-items: center; gap: 12px;
+}
+#appView header nav .navtab:hover {
+  background: var(--surface-2) !important;
+}
+/* Aktiv flik – YouTube-stil: ljus platta + röd, fet text */
+#appView header nav .navtab.navtab-active {
+  background: color-mix(in srgb, var(--yt-red) 12%, var(--surface-2)) !important;
+  color: var(--text) !important;
+  font-weight: 700 !important;
+  box-shadow: inset 3px 0 0 var(--yt-red);
+}
+
+/* Liten räknare bredvid "Sparade" */
+#appView #navSavedCount {
+  margin-left: auto;
+  font-size: .72rem;
+  background: var(--surface-2);
+  border-radius: 9999px;
+  padding: 1px 8px;
+}
+
+/* ==========================================================================
+   3. INNEHÅLL (main flyttas in bredvid sidebaren)
+   ========================================================================== */
+#appView main {
+  margin-left: var(--yt-sidebar-w) !important;
+  max-width: none !important;
+  width: auto !important;
+  padding: 24px 28px 80px !important;
+}
+
+/* ==========================================================================
+   4. SÖKRUTA – hanteras nu helt av gemini-search.css (Gemini-stil)
+   ========================================================================== */
+
+/* ==========================================================================
+   5. KORT, CHIPS & KNAPPAR
+   ========================================================================== */
+#appView .card {
+  border-radius: 14px !important;
+  box-shadow: none !important;
+  border: 1px solid var(--border) !important;
+  transition: box-shadow .15s ease, transform .15s ease;
+}
+#appView .card:hover {
+  box-shadow: var(--shadow-2) !important;
+}
+
+/* Verktygsknappar och chips: rena pillerformer */
+#appView .tool-btn:hover,
+#appView .chip:hover {
+  border-color: var(--yt-red) !important;
+  color: var(--yt-red) !important;
+}
+
+/* Primär gradient-knapp → enhetlig YouTube-röd */
+#appView .btn-grad {
+  background: var(--yt-red) !important;
+  color: #fff !important;
+}
+#appView .btn-grad:hover {
+  background: var(--yt-red-2) !important;
+}
+
+/* Accentlänkar/röd fokus genomgående */
+#appView a { color: var(--yt-red); }
+
+/* ==========================================================================
+   6. RESPONSIVT – sidebaren blir en horisontell rad på små skärmar
+   ========================================================================== */
+@media (max-width: 900px) {
+  #appView header nav {
+    position: sticky !important;
+    top: 0;
+    left: auto; bottom: auto;
+    width: 100% !important;
+    max-width: none !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    border-right: none !important;
+    border-bottom: 1px solid var(--border);
+    padding: 6px 8px !important;
+  }
+  #appView header nav .navtab {
+    width: auto;
+    border-radius: 9999px !important;
+    padding: 8px 14px !important;
+  }
+  #appView header nav .navtab.navtab-active {
+    box-shadow: none;
+    background: var(--yt-red) !important;
+    color: #fff !important;
+  }
+  #appView #navSavedCount { margin-left: 6px; }
+  #appView main { margin-left: 0 !important; padding: 16px 14px 80px !important; }
+}
+
+/* Sidebaren ska inte krocka med flytande element (klocka) –
+   de ligger redan högt i z-index och i högerkant, så inget behöver göras. */
