@@ -182,6 +182,16 @@
     let done = false;
     const go = () => {
       if (done) return; done = true;
+      // Premium: ElevenLabs om aktiverat i Inställningar, annars gratis Web Speech.
+      if (window.OK_TTS && window.OK_TTS.enabled && window.OK_TTS.enabled()) {
+        const savedVal = savedVoiceURI(code);
+        const nm = (savedVal && savedVal.indexOf("gem:") === 0) ? savedVal.slice(4) : null;
+        window.OK_TTS.playPremium(word, window.OK_TTS.voiceIdFor(nm), {}).catch(freeGo);
+        return;
+      }
+      freeGo();
+    };
+    const freeGo = () => {
       try {
         let v, pitch = 1, rate = 0.95;
         const savedVal = savedVoiceURI(code);

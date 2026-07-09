@@ -476,6 +476,24 @@
           <label class="flex items-center gap-1.5 text-[11px] text-slate-400 mt-1"><input id="showYtKey" type="checkbox" class="accent-violet-600"> Visa nyckeln</label>
           <span class="text-[11px] text-slate-400">Aktivera <strong>YouTube Data API v3</strong> i <a href="https://console.cloud.google.com/apis/library/youtube.googleapis.com" target="_blank" class="underline text-violet-500">Google Cloud</a> och klistra in nyckeln. Sparas endast lokalt i din webbläsare.</span>
         </label>
+        <hr class="my-1 border-slate-200 dark:border-slate-800" />
+        <p class="text-[11px] font-semibold text-slate-500 dark:text-slate-400 mt-2 mb-1">🗣️ Uppläsning (röster)</p>
+        <label class="flex items-center gap-2 mb-2">
+          <input id="ttsUseEleven" type="checkbox" class="accent-violet-600" />
+          <span class="font-medium">Använd ElevenLabs-röster (premium)</span>
+        </label>
+        <label class="flex flex-col gap-1 mb-3">
+          <span class="font-medium">ElevenLabs API-nyckel</span>
+          <input id="elevenKey" type="password" placeholder="sk_… / xi-…"
+            class="px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900" />
+          <label class="flex items-center gap-1.5 text-[11px] text-slate-400 mt-1"><input id="showElevenKey" type="checkbox" class="accent-violet-600"> Visa nyckeln</label>
+          <span class="text-[11px] text-slate-400">Är rutan ovan ikryssad läses orden upp med riktiga ElevenLabs-röster. Annars används enhetens gratisröster (Web Speech). Hämta på <a href="https://elevenlabs.io/app/settings/api-keys" target="_blank" class="underline text-violet-500">elevenlabs.io</a>. Sparas endast lokalt i din webbläsare.</span>
+        </label>
+        <label class="flex flex-col gap-1 mb-3">
+          <span class="font-medium">ElevenLabs röst-ID <span class="text-[11px] text-slate-400">(valfritt – annars mappas de namngivna rösterna)</span></span>
+          <input id="elevenVoice" type="text" placeholder="21m00Tcm4TlvDq8ikWAM"
+            class="px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900" />
+        </label>
         <label class="flex flex-col gap-1 mb-3">
           <span class="font-medium">AI-modell</span>
           <select id="geminiModel" class="px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900">
@@ -696,7 +714,8 @@
 
   <script src="data.js?v=4"></script>
   <script src="app.js?v=8"></script>
-  <script src="extras.js?v=5"></script>
+  <script src="tts-engine.js?v=1"></script>
+  <script src="extras.js?v=6"></script>
   <script src="settings.js?v=4"></script>
   <script src="clock.js?v=4"></script>
   <script src="branding.js?v=4"></script>
@@ -713,6 +732,6 @@
   <!-- 11 nya funktioner (fristående lager) -->
   <script src="enhancements.js?v=2"></script>
   <!-- Gemini Live – fullskärms röstassistent -->
-  <script src="gemini-live.js?v=2"></script>
+  <script src="gemini-live.js?v=3"></script>
 </body>
 </html>

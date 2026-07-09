@@ -108,6 +108,17 @@
   }
   var speaking = false;
   function speak(text, done) {
+    var onstart = function () { speaking = true; setPill("speaking"); };
+    var onend = function () { speaking = false; setPill(listening ? "listening" : "idle"); if (done) done(); };
+    // Premium: ElevenLabs-röster om aktiverat i Inställningar, annars gratis Web Speech.
+    if (window.OK_TTS && window.OK_TTS.enabled && window.OK_TTS.enabled()) {
+      window.OK_TTS.playPremium(text, window.OK_TTS.voiceIdFor(chosenVoice), { onstart: onstart, onend: onend })
+        .catch(function () { freeSpeak(text, onstart, onend); });
+      return;
+    }
+    freeSpeak(text, onstart, onend);
+  }
+  function freeSpeak(text, onstart, onend) {
     try {
       speechSynthesis.cancel();
       var u = new SpeechSynthesisUtterance(text);
@@ -115,10 +126,10 @@
       var prof = currentProfile();
       var v = pickVoice(prof); if (v) u.voice = v;
       u.pitch = prof.pitch; u.rate = prof.rate;
-      u.onstart = function () { speaking = true; setPill("speaking"); };
-      u.onend = function () { speaking = false; setPill(listening ? "listening" : "idle"); if (done) done(); };
+      u.onstart = onstart;
+      u.onend = onend;
       speechSynthesis.speak(u);
-    } catch (e) { if (done) done(); }
+    } catch (e) { if (onend) onend(); }
   }
 
   /* ---------- state ---------- */
