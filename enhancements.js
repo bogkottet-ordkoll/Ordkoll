@@ -141,13 +141,24 @@
     var D = { glad: "happy", ledsen: "sad", arg: "angry", trött: "tired", snabb: "fast", stor: "big", liten: "small", vacker: "beautiful", ful: "ugly", stark: "strong", svag: "weak", varm: "warm", kall: "cold", ny: "new", gammal: "old", bra: "good", dålig: "bad", rolig: "fun", tråkig: "boring", rädd: "afraid", modig: "brave" };
     return D[norm(w)] || null;
   }
+  function placeTransPanel(card, panel) {
+    // Placera översättningen HÖGT UPP – direkt efter synonym-blocket.
+    var synBlock = null;
+    card.querySelectorAll("h4").forEach(function (h) {
+      if (!synBlock && /Synonymer/i.test(h.textContent)) synBlock = h.closest(".mb-4") || h.parentElement;
+    });
+    if (synBlock && synBlock.parentElement) { synBlock.insertAdjacentElement("afterend", panel); return; }
+    // ingen synonymrubrik → lägg högst upp, efter titel/spara-raden
+    var headRow = card.querySelector(".flex.items-start") || card.firstElementChild;
+    if (headRow) headRow.insertAdjacentElement("afterend", panel); else card.appendChild(panel);
+  }
   function buildTranslatePanel(card, word) {
     var d = ORDBOK()[norm(word)] || {};
     var old = card.querySelector(".ok2-trans-panel"); if (old) { old.remove(); return; }
     var panel = document.createElement("div");
     panel.className = "ok2-trans-panel";
     panel.innerHTML = '<h5>🌐 Engelska</h5><div class="ok2-tr-row">Översätter…</div>';
-    card.appendChild(panel);
+    placeTransPanel(card, panel);
     var cacheKey = "ordkollen_tr_" + norm(word);
     var cached = lsGet(cacheKey, null);
     if (cached) { renderTrans(panel, word, cached); return; }

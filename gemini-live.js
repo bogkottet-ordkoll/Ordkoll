@@ -59,20 +59,59 @@
     "Om inget ska ändras, hoppa över ACTION-raden och svara bara vänligt.";
 
   /* ---------- tal (TTS) ---------- */
-  var chosenVoiceName = null;
-  try { chosenVoiceName = localStorage.getItem("ordkollen_live_voice") || null; } catch (e) {}
+  // Gemini-röster (namngivna). Riktiga Gemini-ljud kräver Live/TTS-API:t; här
+  // emuleras varje röst med en egen ton/hastighet ovanpå enhetens bästa röst,
+  // så alla namnen ALLTID går att välja och låter olika.
+  var GEMINI_VOICES = [
+    { name: "Capella", g: "f", pitch: 1.15, rate: 1.00, desc: "varm" },
+    { name: "Glow",    g: "f", pitch: 1.32, rate: 1.05, desc: "ljus" },
+    { name: "Flare",   g: "f", pitch: 1.12, rate: 1.16, desc: "energisk" },
+    { name: "Orbit",   g: "n", pitch: 1.00, rate: 0.96, desc: "lugn" },
+    { name: "Orion",   g: "m", pitch: 0.80, rate: 0.96, desc: "djup" },
+    { name: "Dipper",  g: "f", pitch: 1.26, rate: 1.10, desc: "lekfull" },
+    { name: "Pegasus", g: "m", pitch: 0.90, rate: 1.00, desc: "mjuk" },
+    { name: "Ursa",    g: "m", pitch: 0.70, rate: 0.90, desc: "mörk" },
+    { name: "Vega",    g: "f", pitch: 1.20, rate: 1.00, desc: "klar" },
+    { name: "Eclipse", g: "m", pitch: 0.85, rate: 0.92, desc: "dämpad" }
+  ];
+  function gemVoice(name) { for (var i = 0; i < GEMINI_VOICES.length; i++) if (GEMINI_VOICES[i].name === name) return GEMINI_VOICES[i]; return null; }
+
+  var chosenVoice = null;   // "gem:Capella" | "dev:<browsernamn>"
+  try { chosenVoice = localStorage.getItem("ordkollen_live_voice") || null; } catch (e) {}
+  // standard: första Gemini-rösten
+  if (!chosenVoice) chosenVoice = "gem:Capella";
+  // bakåtkompatibelt: gammalt värde var bara ett browsernamn
+  if (chosenVoice && chosenVoice.indexOf(":") < 0) chosenVoice = "dev:" + chosenVoice;
+
   function voices() { try { return speechSynthesis.getVoices() || []; } catch (e) { return []; } }
-  function pickVoice() {
+  var FEMALE_HINT = /(female|kvinn|alva|elin|klara|astrid|google svenska|samantha|victoria|zira|serena|karen|moira|tessa|fiona|google uk english female|google us english)/i;
+  var MALE_HINT = /(male|man|oskar|erik|magnus|daniel|alex|fred|david|george|mark|rishi|google uk english male)/i;
+  function underlyingFor(prof) {
+    var vs = voices(); if (!vs.length) return null;
+    var sv = vs.filter(function (v) { return /sv/i.test(v.lang); });
+    var pool = sv.length ? sv : vs;
+    if (prof && prof.g === "m") { var m = pool.filter(function (v) { return MALE_HINT.test(v.name); })[0]; if (m) return m; }
+    if (prof && prof.g === "f") { var f = pool.filter(function (v) { return FEMALE_HINT.test(v.name); })[0]; if (f) return f; }
+    return pool[0] || vs[0] || null;
+  }
+  function currentProfile() {
+    if (chosenVoice && chosenVoice.indexOf("gem:") === 0) { var gv = gemVoice(chosenVoice.slice(4)); if (gv) return { gem: gv, pitch: gv.pitch, rate: gv.rate, g: gv.g }; }
+    return { pitch: 1, rate: 1, g: "n", devName: chosenVoice && chosenVoice.indexOf("dev:") === 0 ? chosenVoice.slice(4) : null };
+  }
+  function pickVoice(prof) {
     var vs = voices();
-    if (chosenVoiceName) { var f = vs.filter(function (v) { return v.name === chosenVoiceName; })[0]; if (f) return f; }
-    return vs.filter(function (v) { return /sv/i.test(v.lang); })[0] || vs[0] || null;
+    if (prof && prof.devName) { var f = vs.filter(function (v) { return v.name === prof.devName; })[0]; if (f) return f; }
+    return underlyingFor(prof);
   }
   var speaking = false;
   function speak(text, done) {
     try {
       speechSynthesis.cancel();
       var u = new SpeechSynthesisUtterance(text);
-      u.lang = "sv-SE"; var v = pickVoice(); if (v) u.voice = v;
+      u.lang = "sv-SE";
+      var prof = currentProfile();
+      var v = pickVoice(prof); if (v) u.voice = v;
+      u.pitch = prof.pitch; u.rate = prof.rate;
       u.onstart = function () { speaking = true; setPill("speaking"); };
       u.onend = function () { speaking = false; setPill(listening ? "listening" : "idle"); if (done) done(); };
       speechSynthesis.speak(u);
@@ -206,14 +245,26 @@
   function buildVoicePick() {
     var pick = root.querySelector(".gl-voicepick");
     function render() {
+      var html = '<div class="gl-vp-group">✨ Gemini-röster</div>';
+      html += GEMINI_VOICES.map(function (g) {
+        var val = "gem:" + g.name;
+        return '<div class="gl-vp-item' + (val === chosenVoice ? " sel" : "") + '" data-v="' + esc(val) + '">' +
+          '<span>' + esc(g.name) + '</span><span style="opacity:.6">' + esc(g.desc) + '</span></div>';
+      }).join("");
       var vs = voices().filter(function (v) { return /sv|en/i.test(v.lang); });
       if (!vs.length) vs = voices();
-      pick.innerHTML = vs.map(function (v) {
-        return '<div class="gl-vp-item' + (v.name === chosenVoiceName ? " sel" : "") + '" data-v="' + esc(v.name) + '"><span>' + esc(v.name) + '</span><span style="opacity:.6">' + esc(v.lang) + '</span></div>';
-      }).join("") || '<div class="gl-vp-item">Inga röster hittades i webbläsaren</div>';
+      if (vs.length) {
+        html += '<div class="gl-vp-group">📱 Enhetens röster</div>';
+        html += vs.map(function (v) {
+          var val = "dev:" + v.name;
+          return '<div class="gl-vp-item' + (val === chosenVoice ? " sel" : "") + '" data-v="' + esc(val) + '">' +
+            '<span>' + esc(v.name) + '</span><span style="opacity:.6">' + esc(v.lang) + '</span></div>';
+        }).join("");
+      }
+      pick.innerHTML = html;
       pick.querySelectorAll(".gl-vp-item[data-v]").forEach(function (it) {
         it.addEventListener("click", function () {
-          chosenVoiceName = it.dataset.v; try { localStorage.setItem("ordkollen_live_voice", chosenVoiceName); } catch (e) {}
+          chosenVoice = it.dataset.v; try { localStorage.setItem("ordkollen_live_voice", chosenVoice); } catch (e) {}
           render(); speak("Hej! Så här låter jag nu."); pick.classList.add("hidden");
         });
       });

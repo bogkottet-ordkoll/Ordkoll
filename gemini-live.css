@@ -76,6 +76,11 @@
 }
 .gl-voicepick .gl-vp-item:hover { background: rgba(66,133,244,.1); }
 .gl-voicepick .gl-vp-item.sel { background: rgba(66,133,244,.16); font-weight: 700; }
+.gl-voicepick .gl-vp-group {
+  font-size: .72rem; font-weight: 800; text-transform: uppercase; letter-spacing: .04em;
+  color: #5f6b86; padding: 8px 12px 4px; position: sticky; top: 0; background: inherit;
+}
+.dark .gl-voicepick .gl-vp-group { color: #9fb0d0; }
 
 /* mitten */
 .gl-center {
