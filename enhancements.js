@@ -81,19 +81,31 @@
     popEl = document.createElement("div");
     popEl.className = "ok2-pop";
     popEl.innerHTML =
-      '<h5>💬 ' + esc(word) + (s ? ' <span class="ok2-pop-sent ' + sentClass(s) + '">' + esc(sentLabel(s)) + '</span>' : '') + '</h5>' +
-      '<div class="ok2-pop-body">' + (desc ? esc(maskWord(desc, word)) : 'Ingen förenklad beskrivning sparad för det här ordet ännu.') + '</div>';
+      '<h5>💬 ' + esc(word) + (s ? ' <span class="ok2-pop-sent ' + sentClass(s) + '">' + esc(sentLabel(s)) + '</span>' : '') +
+        ' <button type="button" class="ok2-reveal ok2-pop-reveal" title="Visa/dölj ordet">👁️</button></h5>' +
+      '<div class="ok2-pop-body"></div>';
     document.body.appendChild(popEl);
+    var body = popEl.querySelector(".ok2-pop-body");
+    var revealBtn = popEl.querySelector(".ok2-pop-reveal");
+    var raw = desc || "", revealed = false;
+    function renderBody() {
+      if (!raw) { body.textContent = "Ingen förenklad beskrivning sparad för det här ordet ännu."; revealBtn.style.display = "none"; return; }
+      revealBtn.style.display = "";
+      body.textContent = revealed ? raw : maskWord(raw, word);
+      revealBtn.textContent = revealed ? "🙈" : "👁️";
+      revealBtn.title = revealed ? "Dölj ordet" : "Visa ordet";
+    }
+    renderBody();
+    revealBtn.addEventListener("click", function (e) { e.stopPropagation(); revealed = !revealed; renderBody(); });
     var r = anchor.getBoundingClientRect();
     var top = r.bottom + 8, left = Math.min(r.left, window.innerWidth - popEl.offsetWidth - 12);
     if (top + popEl.offsetHeight > window.innerHeight - 8) top = Math.max(8, r.top - popEl.offsetHeight - 8);
     popEl.style.top = top + "px"; popEl.style.left = Math.max(8, left) + "px";
     setTimeout(function () { document.addEventListener("click", outsidePop, true); }, 0);
     if (!desc && geminiKey()) {
-      var body = popEl.querySelector(".ok2-pop-body");
       body.textContent = "Genererar en kort förklaring…";
       callGemini('Förklara det svenska ordet "' + word + '" mycket kort och enkelt på svenska i EN mening (max 15 ord). Svara bara med meningen.')
-        .then(function (t) { if (popEl && body) body.textContent = maskWord(t.trim(), word) || "Kunde inte generera."; })
+        .then(function (t) { if (popEl && body) { raw = (t || "").trim(); revealed = false; renderBody(); } })
         .catch(function () { if (popEl && body) body.textContent = "Ingen beskrivning tillgänglig."; });
     }
   }
@@ -260,13 +272,26 @@
       /* 10) cirkel som auto-genererar ny förklaring */
       var genWrap = document.createElement("div");
       genWrap.className = "ok2-genwrap";
-      genWrap.innerHTML = '<button type="button" class="ok2-gencircle" title="Generera ny förklaring">↻</button><div class="ok2-genexpl"></div>';
+      genWrap.innerHTML = '<button type="button" class="ok2-gencircle" title="Generera ny förklaring">↻</button>' +
+        '<button type="button" class="ok2-reveal ok2-genreveal" title="Visa/dölj ordet">👁️</button>' +
+        '<div class="ok2-genexpl"></div>';
       var genExplEl = genWrap.querySelector(".ok2-genexpl");
-      var cachedGen = getGenExpl(word); if (cachedGen) genExplEl.textContent = "🧠 " + maskWord(cachedGen, word);
+      var revealBtn = genWrap.querySelector(".ok2-genreveal");
+      var rawGen = getGenExpl(word) || "";
+      var revealed = false;
+      function renderGen() {
+        if (!rawGen) { genExplEl.textContent = ""; revealBtn.style.display = "none"; return; }
+        revealBtn.style.display = "";
+        genExplEl.textContent = "🧠 " + (revealed ? rawGen : maskWord(rawGen, word));
+        revealBtn.textContent = revealed ? "🙈" : "👁️";
+        revealBtn.title = revealed ? "Dölj ordet" : "Visa ordet";
+      }
+      renderGen();
+      revealBtn.addEventListener("click", function () { revealed = !revealed; renderGen(); });
       genWrap.querySelector(".ok2-gencircle").addEventListener("click", function () {
         var circle = this; circle.classList.add("spin");
         generateExplanation(word).then(function (t) {
-          genExplEl.textContent = "🧠 " + maskWord(t, word); setGenExpl(word, t); circle.classList.remove("spin");
+          rawGen = t; revealed = false; setGenExpl(word, t); renderGen(); circle.classList.remove("spin");
         }).catch(function () { genExplEl.textContent = "Kunde inte generera just nu."; circle.classList.remove("spin"); });
       });
       body.appendChild(genWrap);
