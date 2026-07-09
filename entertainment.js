@@ -774,6 +774,15 @@
     render();
   }
 
+  // Exponera hemnavigering så bakåtknappen/svep kan gå ur videon OCH tillbaka
+  // till startflödet, skrollat till början.
+  window.ET_goHome = function () {
+    feed.mode = "home"; feed.q = ""; currentRoute = { name: "home" };
+    render();
+    try { window.scrollTo({ top: 0, behavior: "smooth" }); } catch (e) {}
+    try { var m = document.getElementById("etMain"); if (m) m.scrollTop = 0; } catch (e) {}
+  };
+
   function init() {
     view = document.getElementById("view-underhallning");
     if (!view || view.dataset.wired) return;

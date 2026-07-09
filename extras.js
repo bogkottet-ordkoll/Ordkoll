@@ -106,6 +106,35 @@
     return pickVoice(code, tag);
   }
 
+  /* ---- Namngivna Gemini-röster för uppläsning (samma som Gemini Live) ----
+     Enhetens (Microsoft-)röster används inte som förval – i stället väljs en
+     namngiven röst (Capella, Glow, Flare, Orbit, Orion, Dipper, Pegasus, Ursa,
+     Vega, Eclipse) med egen ton/hastighet. Går att välja på alla enheter. */
+  const GEM_VOICES = [
+    { name: "Capella", g: "f", pitch: 1.15, rate: 1.00, desc: "varm" },
+    { name: "Glow",    g: "f", pitch: 1.32, rate: 1.05, desc: "ljus" },
+    { name: "Flare",   g: "f", pitch: 1.12, rate: 1.16, desc: "energisk" },
+    { name: "Orbit",   g: "n", pitch: 1.00, rate: 0.96, desc: "lugn" },
+    { name: "Orion",   g: "m", pitch: 0.80, rate: 0.96, desc: "djup" },
+    { name: "Dipper",  g: "f", pitch: 1.26, rate: 1.10, desc: "lekfull" },
+    { name: "Pegasus", g: "m", pitch: 0.90, rate: 1.00, desc: "mjuk" },
+    { name: "Ursa",    g: "m", pitch: 0.70, rate: 0.90, desc: "mörk" },
+    { name: "Vega",    g: "f", pitch: 1.20, rate: 1.00, desc: "klar" },
+    { name: "Eclipse", g: "m", pitch: 0.85, rate: 0.92, desc: "dämpad" }
+  ];
+  function gemVoice(name) { return GEM_VOICES.find(v => v.name === name) || null; }
+  const GEM_FEMALE = /(female|kvinn|alva|elin|klara|astrid|google svenska|samantha|victoria|zira|serena|karen|moira|tessa|fiona)/i;
+  const GEM_MALE   = /(male|man|oskar|erik|magnus|daniel|alex|fred|david|george|mark|rishi)/i;
+  function underlyingForGem(prof, code) {
+    const vs = speechSynthesis.getVoices() || []; if (!vs.length) return null;
+    const lc = String(code).toLowerCase();
+    const same = vs.filter(v => String(v.lang || "").toLowerCase().split("-")[0] === lc);
+    const pool = same.length ? same : vs;
+    if (prof.g === "m") { const m = pool.find(v => GEM_MALE.test(v.name)); if (m) return m; }
+    if (prof.g === "f") { const f = pool.find(v => GEM_FEMALE.test(v.name)); if (f) return f; }
+    return pool[0] || vs[0] || null;
+  }
+
   let voiceSel = null;
   function buildVoicePicker() {
     const tts = $("ttsBtn");
@@ -137,8 +166,10 @@
     const others = voices.filter(v => norm(v.lang).split("-")[0] !== lc);
     const opt = (v) => `<option value="${esc(v.voiceURI)}">${esc(v.name)} (${esc(v.lang)})</option>`;
     let html = `<option value="">Auto – bästa för ${esc(langName(code))}</option>`;
+    // Namngivna Gemini-röster överst – väljbara på alla enheter (även mobil).
+    html += `<optgroup label="✨ Gemini-röster">${GEM_VOICES.map(g => `<option value="gem:${g.name}">${esc(g.name)} – ${esc(g.desc)}</option>`).join("")}</optgroup>`;
     if (match.length)  html += `<optgroup label="🎯 ${esc(langName(code))}">${match.map(opt).join("")}</optgroup>`;
-    if (others.length) html += `<optgroup label="Alla röster">${others.map(opt).join("")}</optgroup>`;
+    if (others.length) html += `<optgroup label="Enhetens röster">${others.map(opt).join("")}</optgroup>`;
     voiceSel.innerHTML = html;
     voiceSel.value = savedVoiceURI(code) || "";
   }
@@ -152,10 +183,16 @@
     const go = () => {
       if (done) return; done = true;
       try {
-        const v = resolveVoice(code, tag);
+        let v, pitch = 1, rate = 0.95;
+        const savedVal = savedVoiceURI(code);
+        if (savedVal && savedVal.indexOf("gem:") === 0) {
+          const prof = gemVoice(savedVal.slice(4));
+          if (prof) { v = underlyingForGem(prof, code); pitch = prof.pitch; rate = prof.rate; }
+        }
+        if (!v) v = resolveVoice(code, tag);
         const u = new SpeechSynthesisUtterance(word);
         u.lang = v ? v.lang : tag;   // röstens locale styr uttalet/brytningen
-        u.rate = 0.95;
+        u.rate = rate; u.pitch = pitch;
         if (v) u.voice = v;
         try { speechSynthesis.resume(); } catch (e) {}
         speechSynthesis.cancel();

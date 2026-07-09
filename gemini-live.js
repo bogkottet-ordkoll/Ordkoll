@@ -82,6 +82,9 @@
   if (!chosenVoice) chosenVoice = "gem:Capella";
   // bakåtkompatibelt: gammalt värde var bara ett browsernamn
   if (chosenVoice && chosenVoice.indexOf(":") < 0) chosenVoice = "dev:" + chosenVoice;
+  // Enhetens (t.ex. Microsoft-) röster ska INTE användas – tvinga en namngiven
+  // Gemini-röst (Capella, Glow, …, Pegasus, Vega, Eclipse).
+  if (chosenVoice && chosenVoice.indexOf("dev:") === 0) chosenVoice = "gem:Capella";
 
   function voices() { try { return speechSynthesis.getVoices() || []; } catch (e) { return []; } }
   var FEMALE_HINT = /(female|kvinn|alva|elin|klara|astrid|google svenska|samantha|victoria|zira|serena|karen|moira|tessa|fiona|google uk english female|google us english)/i;
@@ -149,6 +152,7 @@
       '<div class="gl-top">' +
         '<button class="gl-iconbtn gl-min" title="Minimera (stänger inte)">≡</button>' +
         '<div class="gl-top-right">' +
+          '<button class="gl-iconbtn gl-chattoggle" title="Visa/dölj chatt">💬</button>' +
           '<button class="gl-iconbtn gl-newbtn" title="Ny konversation">🗒️</button>' +
           '<button class="gl-iconbtn gl-morebtn" title="Fler val">⋮</button>' +
         '</div>' +
@@ -158,12 +162,14 @@
       '<div class="gl-center">' +
         STAR +
         '<h1 class="gl-title"></h1>' +
-        '<video class="gl-cam" playsinline muted></video>' +
         '<div class="gl-stream"></div>' +
       '</div>' +
       '<div class="gl-status"></div>' +
+      '<div class="gl-chatbar">' +
+        '<input type="text" class="gl-chatinput" placeholder="Skriv ett meddelande…" autocomplete="off">' +
+        '<button class="gl-chatsend" title="Skicka">➤</button>' +
+      '</div>' +
       '<div class="gl-controls">' +
-        '<button class="gl-cbtn gl-cam-btn" title="Kamera">' + IC_CAM + '</button>' +
         '<button class="gl-cbtn gl-up-btn" title="Ladda upp bild">' + IC_UP + '</button>' +
         '<button class="gl-pill idle" title="Live"><span class="gl-wave"><span></span><span></span><span></span><span></span><span></span></span></button>' +
         '<button class="gl-cbtn gl-mic-btn" title="Mikrofon">' + IC_MIC + '</button>' +
@@ -175,20 +181,30 @@
     elTitle = root.querySelector(".gl-title");
     elStream = root.querySelector(".gl-stream");
     elStatus = root.querySelector(".gl-status");
-    elCam = root.querySelector(".gl-cam");
     elPill = root.querySelector(".gl-pill");
     elMicBtn = root.querySelector(".gl-mic-btn");
 
     root.querySelector(".gl-min").addEventListener("click", minimize);
     root.querySelector(".gl-morebtn").addEventListener("click", toggleVoicePick);
     root.querySelector(".gl-voicehint").addEventListener("click", toggleVoicePick);
+    root.querySelector(".gl-chattoggle").addEventListener("click", toggleChat);
     root.querySelector(".gl-newbtn").addEventListener("click", function () { history = []; elStream.innerHTML = ""; setTitle(); addNote("Ny konversation"); });
     root.querySelector(".gl-close-btn").addEventListener("click", closeFull);
-    root.querySelector(".gl-cam-btn").addEventListener("click", toggleCam);
     root.querySelector(".gl-up-btn").addEventListener("click", function () { root.querySelector(".gl-file").click(); });
     root.querySelector(".gl-file").addEventListener("change", onFile);
     elMicBtn.addEventListener("click", function () { wantLive ? stopListen(true) : startListen(); });
     elPill.addEventListener("click", function () { wantLive ? stopListen(true) : startListen(); });
+    // Chatt: skriv och skicka (utan mikrofon)
+    var chatInput = root.querySelector(".gl-chatinput");
+    var chatSend = root.querySelector(".gl-chatsend");
+    function sendChat() {
+      var t = (chatInput.value || "").trim();
+      if (!t) return;
+      chatInput.value = "";
+      handleUtterance(t);
+    }
+    chatSend.addEventListener("click", sendChat);
+    chatInput.addEventListener("keydown", function (e) { if (e.key === "Enter") { e.preventDefault(); sendChat(); } });
 
     buildVoicePick();
     applyDeviceClass();
@@ -218,8 +234,8 @@
   }
 
   function setTitle() {
-    var n = userName();
-    elTitle.textContent = n ? ("Fråga på, " + n + "!") : "Fråga på!";
+    // Ingen hälsning eller namn i Gemini Live – rubriken lämnas helt tom.
+    if (elTitle) elTitle.textContent = "";
   }
   function setPill(mode) {
     if (!elPill) return;
@@ -251,16 +267,7 @@
         return '<div class="gl-vp-item' + (val === chosenVoice ? " sel" : "") + '" data-v="' + esc(val) + '">' +
           '<span>' + esc(g.name) + '</span><span style="opacity:.6">' + esc(g.desc) + '</span></div>';
       }).join("");
-      var vs = voices().filter(function (v) { return /sv|en/i.test(v.lang); });
-      if (!vs.length) vs = voices();
-      if (vs.length) {
-        html += '<div class="gl-vp-group">📱 Enhetens röster</div>';
-        html += vs.map(function (v) {
-          var val = "dev:" + v.name;
-          return '<div class="gl-vp-item' + (val === chosenVoice ? " sel" : "") + '" data-v="' + esc(val) + '">' +
-            '<span>' + esc(v.name) + '</span><span style="opacity:.6">' + esc(v.lang) + '</span></div>';
-        }).join("");
-      }
+      // Enhetens röster (Microsoft m.fl.) visas inte – endast namngivna Gemini-röster.
       pick.innerHTML = html;
       pick.querySelectorAll(".gl-vp-item[data-v]").forEach(function (it) {
         it.addEventListener("click", function () {
@@ -276,6 +283,11 @@
     var pick = root.querySelector(".gl-voicepick");
     root.querySelector(".gl-voicehint").classList.add("hidden");
     pick.classList.toggle("hidden");
+  }
+  // Chatt: göm/visa själva konversationen (chat-läge på/av)
+  function toggleChat() {
+    if (!root) return;
+    root.classList.toggle("gl-chat-hidden");
   }
 
   /* ---------- kamera + bild ---------- */
@@ -320,11 +332,12 @@
     recog.onstart = function () { listening = true; setPill("listening"); };
     recog.onerror = function (ev) { listening = false; if (ev.error === "not-allowed") { addNote("Mikrofonbehörighet nekad"); wantLive = false; } };
     recog.onend = function () {
-      listening = false; setPill("idle");
+      // En-gångs-mikrofon: stänger av sig själv efter varje yttring så att
+      // mikrofonen inte öppnas om och om igen automatiskt.
+      listening = false; wantLive = false; setPill("idle"); syncFab();
       if (interimEl) { interimEl.remove(); interimEl = null; }
       var t = finalText.trim(); finalText = "";
       if (t) handleUtterance(t);
-      else if (wantLive && !speaking) setTimeout(function () { if (wantLive) startListen(); }, 400);
     };
     recog.onresult = function (e) {
       var txt = ""; for (var i = 0; i < e.results.length; i++) txt += e.results[i][0].transcript;
@@ -338,7 +351,7 @@
     listening = false; try { recog && recog.stop(); } catch (e) {}
     setPill("idle");
   }
-  function continueLive() { if (wantLive && !speaking) setTimeout(function () { if (wantLive && !listening) startListen(); }, 350); }
+  function continueLive() { /* Mikrofonen öppnas inte längre automatiskt – användaren trycker själv. */ }
 
   /* ---------- lokala snabbkommandon (funkar utan nyckel) ---------- */
   function localCommand(text) {
@@ -470,14 +483,12 @@
     root.classList.remove("hidden");
     hideFab();
     setPill("idle");
-    // greeting endast första gången per session
+    // Ingen automatisk mikrofon och ingen uppläst hälsning med namn.
+    // Mikrofonen öppnas ENDAST när användaren trycker på den.
     if (!root._greeted) {
       root._greeted = true;
-      var n = userName();
-      var hi = "Hej" + (n ? " " + n : "") + "! Jag är Gemini Live i " + appName() + ". Fråga vad du vill, eller be mig lägga till, ta bort eller markera ord.";
-      setTimeout(function () { speak(hi, function () { if (wantLive) continueLive(); }); }, 350);
+      addNote("Skriv i rutan eller tryck på mikrofonen för att prata.");
     }
-    if (autoListen !== false) setTimeout(startListen, 300);
   }
   function minimize() {           // "gå ur" men INTE stänga – session lever vidare
     if (!root) return;

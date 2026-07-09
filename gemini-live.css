@@ -247,3 +247,44 @@
   .gl-root .gl-center { gap: 8px; padding: 6px 14px; }
   .gl-root .gl-controls { padding-top: 8px; padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px)); }
 }
+
+/* =========================================================================
+   TILLÄGG (användarönskemål)
+   • Kamera borttagen i Gemini Live
+   • Chatt: skriv-ruta + göm/visa konversationen
+   • Mer luft runt "Gemini Live"-knappen så den inte krockar med logon
+   ========================================================================= */
+
+/* Kameran är borttagen – dölj eventuella rester helt */
+.gl-cam { display: none !important; }
+
+/* ---- Chatt-rad (skriv utan mikrofon) ---- */
+.gl-chatbar {
+  display: flex; align-items: center; gap: 8px;
+  width: min(680px, 92%); margin: 4px auto 2px;
+}
+.gl-chatinput {
+  flex: 1; height: 46px; padding: 0 16px; border-radius: 9999px;
+  border: 1px solid rgba(0,0,0,.12); background: rgba(255,255,255,.85);
+  color: #1f2430; font-size: .95rem; outline: none;
+}
+.gl-chatinput:focus { border-color: #4285f4; box-shadow: 0 0 0 3px rgba(66,133,244,.18); }
+.dark .gl-chatinput { background: rgba(30,38,56,.85); color: #eaeef7; border-color: rgba(255,255,255,.14); }
+.gl-chatsend {
+  flex: 0 0 auto; width: 46px; height: 46px; border-radius: 50%; border: none; cursor: pointer;
+  background: linear-gradient(120deg, #4285f4, #9334e6); color: #fff; font-size: 1.05rem;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.gl-chatsend:hover { filter: brightness(1.06); }
+
+/* ---- Chat-läge av: göm konversation + skrivruta, behåll rösten ---- */
+.gl-root.gl-chat-hidden .gl-stream,
+.gl-root.gl-chat-hidden .gl-chatbar { display: none !important; }
+.gl-chattoggle { font-size: 1rem; }
+.gl-root.gl-chat-hidden .gl-chattoggle { opacity: .55; }
+
+/* ---- Mer utrymme runt Gemini Live-knappen (så den inte pressas ihop) ---- */
+.gl-launch { margin: 18px auto 22px !important; }
+
+/* Flytta upp botten-kanten en aning så den inte ligger på klockan/logon */
+.gl-fab { bottom: calc(24px + env(safe-area-inset-bottom, 0px)) !important; }

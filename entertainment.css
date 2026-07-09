@@ -624,3 +624,80 @@
   font-size: 13px; line-height: 1.4; max-width: 80%; backdrop-filter: blur(4px);
 }
 #view-underhallning .et-adfree-note.err { background: rgba(150,10,10,.82); }
+
+
+/* =========================================================================
+   VANLIGT YOUTUBE-TEMA (VIT) + JORDKLOTET BORTTAGET  (användarönskemål)
+   Läggs SIST → vinner kaskaden. Gör Underhållning ljus som riktiga YouTube
+   i ljust läge, och behåller YouTubes mörka tema när .dark är aktivt.
+   Tar även bort rymd/jordklot-bakgrunden och banner-remsorna.
+   ========================================================================= */
+
+/* ---- Ljust läge (standard YouTube) ---- */
+#view-underhallning {
+  --et-red:    #ff0000;
+  --et-red-2:  #cc0000;
+  --et-navy:   #ffffff;
+  --et-navy-2: #f9f9f9;
+  --et-glass:  #ffffff;
+  --et-glass-2:#f2f2f2;
+  --et-brd:    rgba(0,0,0,.12);
+  --et-text:   #0f0f0f;
+  --et-muted:  #606060;
+  background: #ffffff !important;
+  color: #0f0f0f;
+}
+/* Ta bort rymd/jordklot-washen bakom vyn */
+#view-underhallning::before { display: none !important; content: none !important; }
+/* Ta bort banner-remsorna (jordklotsbilden) helt */
+#view-underhallning .et-banner,
+#view-underhallning .et-banner-strip { display: none !important; }
+
+#view-underhallning .et-shell {
+  background: #ffffff;
+  border-color: var(--et-brd);
+  box-shadow: 0 1px 0 rgba(0,0,0,.06);
+  backdrop-filter: none;
+}
+#view-underhallning .et-masthead {
+  background: #ffffff;
+  border-bottom: 1px solid var(--et-brd);
+  backdrop-filter: none;
+}
+#view-underhallning .et-masthead .et-search {
+  background: #f8f8f8; border: 1px solid var(--et-brd); color: var(--et-muted);
+}
+#view-underhallning .et-masthead .et-search input { color: var(--et-text); }
+#view-underhallning .et-sidebar {
+  background: #ffffff; border-right: 1px solid var(--et-brd);
+}
+#view-underhallning .et-icon-btn:hover,
+#view-underhallning .et-side-item:hover { background: rgba(0,0,0,.06); }
+#view-underhallning .et-side-item.active { background: rgba(0,0,0,.10); }
+#view-underhallning .et-subscribed { background: #f2f2f2; color: #0f0f0f; }
+#view-underhallning .et-subscribed:hover { background: #e5e5e5; }
+#view-underhallning .et-watch-desc,
+#view-underhallning .et-ai { background: #f9f9f9; }
+
+/* ---- Mörkt läge: behåll YouTubes mörka tema ---- */
+.dark #view-underhallning {
+  --et-navy:   #0f0f0f;
+  --et-navy-2: #212121;
+  --et-glass:  #212121;
+  --et-glass-2:#282828;
+  --et-brd:    rgba(255,255,255,.15);
+  --et-text:   #f1f1f1;
+  --et-muted:  #aaaaaa;
+  background: #0f0f0f !important;
+  color: #f1f1f1;
+}
+.dark #view-underhallning .et-shell,
+.dark #view-underhallning .et-masthead,
+.dark #view-underhallning .et-sidebar { background: #0f0f0f; }
+.dark #view-underhallning .et-masthead .et-search { background: #121212; }
+.dark #view-underhallning .et-icon-btn:hover,
+.dark #view-underhallning .et-side-item:hover { background: rgba(255,255,255,.1); }
+.dark #view-underhallning .et-side-item.active { background: rgba(255,255,255,.15); }
+.dark #view-underhallning .et-subscribed { background: rgba(255,255,255,.14); color: #fff; }
+.dark #view-underhallning .et-watch-desc,
+.dark #view-underhallning .et-ai { background: #212121; }

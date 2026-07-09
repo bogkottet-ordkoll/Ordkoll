@@ -111,7 +111,19 @@
 .ok2-bold #savedList .saved-syn,
 .ok2-bold #savedList .chip,
 .ok2-bold #suggestions .chip,
-.ok2-bold #recentBar .chip { font-weight:900 !important; }
+.ok2-bold #recentBar .chip {
+  font-weight: 900 !important;
+  color: #000 !important;                       /* mörk och tydlig */
+  -webkit-text-stroke: 0.4px currentColor;      /* extra tjock/synlig */
+  text-shadow: 0 0 0.4px currentColor;
+  letter-spacing: .1px;
+}
+/* I mörkt läge ska den fetstilta texten vara ljus men fortfarande kraftig */
+.dark.ok2-bold #savedList .saved-open,
+.dark.ok2-bold #savedList .saved-syn,
+.dark.ok2-bold #savedList .chip,
+.dark.ok2-bold #suggestions .chip,
+.dark.ok2-bold #recentBar .chip { color: #fff !important; }
 
 /* ---------- 8) Översätt ---------- */
 .ok2-transbtn {

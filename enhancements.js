@@ -10,6 +10,15 @@
   var ORDBOK = function () { return window.ORDBOK || {}; };
   function norm(s) { return String(s || "").trim().toLowerCase(); }
   function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]; }); }
+  // Dölj själva ordet (och enkla böjningar) i en beskrivning så det inte avslöjas.
+  function maskWord(text, word) {
+    if (!text || !word) return text || "";
+    try {
+      var stem = String(word).trim().replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      var re = new RegExp(stem + "[a-zA-ZåäöÅÄÖ]*", "gi");
+      return String(text).replace(re, "＿＿＿");
+    } catch (e) { return text; }
+  }
 
   /* ---------- session + sparade ord ---------- */
   function sessionUser() { try { return JSON.parse(localStorage.getItem("ordkollen_session")); } catch (e) { return null; } }
@@ -73,7 +82,7 @@
     popEl.className = "ok2-pop";
     popEl.innerHTML =
       '<h5>💬 ' + esc(word) + (s ? ' <span class="ok2-pop-sent ' + sentClass(s) + '">' + esc(sentLabel(s)) + '</span>' : '') + '</h5>' +
-      '<div class="ok2-pop-body">' + (desc ? esc(desc) : 'Ingen förenklad beskrivning sparad för det här ordet ännu.') + '</div>';
+      '<div class="ok2-pop-body">' + (desc ? esc(maskWord(desc, word)) : 'Ingen förenklad beskrivning sparad för det här ordet ännu.') + '</div>';
     document.body.appendChild(popEl);
     var r = anchor.getBoundingClientRect();
     var top = r.bottom + 8, left = Math.min(r.left, window.innerWidth - popEl.offsetWidth - 12);
@@ -84,7 +93,7 @@
       var body = popEl.querySelector(".ok2-pop-body");
       body.textContent = "Genererar en kort förklaring…";
       callGemini('Förklara det svenska ordet "' + word + '" mycket kort och enkelt på svenska i EN mening (max 15 ord). Svara bara med meningen.')
-        .then(function (t) { if (popEl && body) body.textContent = t.trim() || "Kunde inte generera."; })
+        .then(function (t) { if (popEl && body) body.textContent = maskWord(t.trim(), word) || "Kunde inte generera."; })
         .catch(function () { if (popEl && body) body.textContent = "Ingen beskrivning tillgänglig."; });
     }
   }
@@ -253,11 +262,11 @@
       genWrap.className = "ok2-genwrap";
       genWrap.innerHTML = '<button type="button" class="ok2-gencircle" title="Generera ny förklaring">↻</button><div class="ok2-genexpl"></div>';
       var genExplEl = genWrap.querySelector(".ok2-genexpl");
-      var cachedGen = getGenExpl(word); if (cachedGen) genExplEl.textContent = "🧠 " + cachedGen;
+      var cachedGen = getGenExpl(word); if (cachedGen) genExplEl.textContent = "🧠 " + maskWord(cachedGen, word);
       genWrap.querySelector(".ok2-gencircle").addEventListener("click", function () {
         var circle = this; circle.classList.add("spin");
         generateExplanation(word).then(function (t) {
-          genExplEl.textContent = "🧠 " + t; setGenExpl(word, t); circle.classList.remove("spin");
+          genExplEl.textContent = "🧠 " + maskWord(t, word); setGenExpl(word, t); circle.classList.remove("spin");
         }).catch(function () { genExplEl.textContent = "Kunde inte generera just nu."; circle.classList.remove("spin"); });
       });
       body.appendChild(genWrap);
@@ -397,10 +406,12 @@
      3) BAKÅTKNAPP + SVEP för att lämna video (YouTube-vyn)
      ===================================================================== */
   function goBackFromVideo() {
+    // Gå UR videon och tillbaka till startflödet (från början) – funkar även på mobil.
+    if (typeof window.ET_goHome === "function") { window.ET_goHome(); return; }
     var homeItem = document.querySelector('#view-underhallning .et-side-item[data-et-nav="home"]');
-    if (homeItem) { homeItem.click(); return; }
-    var back = document.querySelector('#view-underhallning [data-et-nav]');
-    if (back) back.click();
+    if (homeItem) { homeItem.click(); }
+    else { var back = document.querySelector('#view-underhallning [data-et-nav]'); if (back) back.click(); }
+    try { window.scrollTo({ top: 0, behavior: "smooth" }); } catch (e) {}
   }
   function enhanceWatch() {
     var view = $("view-underhallning"); if (!view) return;
