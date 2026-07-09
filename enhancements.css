@@ -1,0 +1,197 @@
+/* =========================================================================
+   Ordkollen – TILLÄGG (11 nya funktioner) – FRISTÅENDE STILLAGER
+   Läggs SIST. Rör inte kärnan – endast egna klasser (.ok2-*) + små hooks.
+   1) Färgade synonymer (grön=positiv, röd=negativ)
+   2) Snabb-scroll till botten + slut-meddelande i sparade
+   3) Bakåtknapp + svep för att lämna video (YouTube)
+   4) Checklista + färga ordet + sudda
+   5) Bubbla med kort förklaring bredvid sparat ord
+   6) Långtryck visar förenklad beskrivning (överallt)
+   7) Fetstil på/av för sparade ord + söklista
+   8) Översätt ordet + synonymer + idiom till engelska
+   9) Byt namn på appen
+   10) Auto-generera ny förklaring (cirkel under ordet)
+   11) Röstläge (Gemini) med kamera + lägg till/ta bort ord
+   ========================================================================= */
+
+/* ---------- 1) Färgade synonymer ---------- */
+.ok2-syn-dot { display:inline-block; width:8px; height:8px; border-radius:50%;
+  margin-right:6px; vertical-align:middle; box-shadow:0 0 0 1px rgba(0,0,0,.06); }
+.ok2-pos .ok2-syn-dot, .ok2-syn-dot.pos { background:#34a853; }
+.ok2-neg .ok2-syn-dot, .ok2-syn-dot.neg { background:#ea4335; }
+.ok2-neu .ok2-syn-dot, .ok2-syn-dot.neu { background:#9aa0a6; }
+.chip.ok2-pos, .ok2-pos.saved-syn { border-color:#34a85366 !important; }
+.chip.ok2-neg, .ok2-neg.saved-syn { border-color:#ea433566 !important; }
+.chip.ok2-pos { box-shadow: inset 0 -2px 0 #34a85355; }
+.chip.ok2-neg { box-shadow: inset 0 -2px 0 #ea433555; }
+
+/* ---------- 2) Snabb-scroll + slut-meddelande ---------- */
+.ok2-scrollbtn {
+  position: sticky; bottom: 14px; margin-left:auto; display:flex; align-items:center; gap:6px;
+  padding:8px 14px; border-radius:9999px; border:none; cursor:pointer;
+  background: var(--g-blue,#1a73e8); color:#fff; font-weight:700; font-size:.8rem;
+  box-shadow:0 6px 18px rgba(0,0,0,.22); transition:transform .12s, opacity .2s; z-index:20;
+}
+.ok2-scrollbtn:hover { transform: translateY(-2px); }
+.ok2-end {
+  text-align:center; padding:18px 10px 4px; color: var(--text-2,#5f6368);
+  font-size:.85rem; font-weight:600;
+}
+.ok2-end .ok2-end-line { height:1px; background:var(--border,#e0e0e0); margin:0 0 12px; }
+
+/* ---------- 3) Bakåtknapp video ---------- */
+#view-underhallning .ok2-vidback {
+  position:absolute; top:12px; left:12px; z-index:12;
+  display:flex; align-items:center; gap:6px;
+  padding:8px 14px; border-radius:9999px; border:none; cursor:pointer;
+  background:rgba(0,0,0,.62); color:#fff; font-weight:700; font-size:.85rem;
+  backdrop-filter: blur(4px);
+}
+#view-underhallning .ok2-vidback:hover { background:rgba(0,0,0,.8); }
+.ok2-swipe-hint {
+  position:absolute; top:12px; left:50%; transform:translateX(-50%); z-index:11;
+  background:rgba(0,0,0,.55); color:#fff; padding:6px 12px; border-radius:9999px;
+  font-size:.72rem; pointer-events:none; opacity:0; transition:opacity .25s;
+}
+.ok2-swipe-hint.show { opacity:1; }
+
+/* ---------- 4) Checklista + färga ordet ---------- */
+.ok2-tools { margin-top:10px; border-top:1px dashed var(--border,#e0e0e0); padding-top:10px;
+  display:flex; flex-direction:column; gap:10px; }
+.ok2-row { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+.ok2-label { font-size:.72rem; font-weight:700; color:var(--text-2,#5f6368); }
+.ok2-sw {
+  width:22px; height:22px; border-radius:50%; cursor:pointer; border:2px solid #fff;
+  box-shadow:0 0 0 1px var(--border,#e0e0e0); transition:transform .1s;
+}
+.ok2-sw:hover { transform:scale(1.15); }
+.ok2-mini {
+  border:1px solid var(--border,#e0e0e0); background:var(--surface,#fff); color:var(--text,#202124);
+  border-radius:9999px; padding:4px 11px; font-size:.74rem; font-weight:700; cursor:pointer;
+}
+.ok2-mini:hover { background:var(--surface-2,#f1f3f4); }
+.ok2-mini.danger { color:#ea4335; border-color:#ea433566; }
+.ok2-chkadd { display:flex; gap:6px; align-items:center; width:100%; }
+.ok2-chkadd input {
+  flex:1; min-width:0; border:1px solid var(--border,#e0e0e0); background:var(--surface,#fff);
+  color:var(--text,#202124); border-radius:9px; padding:6px 10px; font-size:.82rem;
+}
+.ok2-chklist { list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:5px; }
+.ok2-chkitem { display:flex; align-items:center; gap:8px; font-size:.85rem; color:var(--text,#202124); }
+.ok2-chkitem input[type=checkbox] { width:16px; height:16px; accent-color:var(--g-blue,#1a73e8); }
+.ok2-chkitem.done span { text-decoration:line-through; color:var(--text-2,#9aa0a6); }
+.ok2-chkitem .ok2-chkdel { margin-left:auto; color:#ea4335; cursor:pointer; border:none; background:none; font-size:1rem; }
+
+/* ---------- 5) Bubbla + 6) Långtryck-popup ---------- */
+.ok2-bubble {
+  display:inline-flex; align-items:center; justify-content:center; width:22px; height:22px;
+  border-radius:50%; border:1px solid var(--g-blue,#1a73e8); color:var(--g-blue,#1a73e8);
+  background:var(--surface,#fff); font-size:.72rem; cursor:pointer; margin-left:6px; vertical-align:middle;
+  flex:0 0 auto;
+}
+.ok2-bubble:hover { background:var(--g-blue,#1a73e8); color:#fff; }
+.ok2-pop {
+  position:fixed; z-index:9999; max-width:280px; padding:12px 14px; border-radius:14px;
+  background:var(--surface,#fff); color:var(--text,#202124);
+  border:1px solid var(--border,#e0e0e0); box-shadow:0 12px 34px rgba(0,0,0,.24);
+  font-size:.85rem; line-height:1.45; animation: ok2pop .14s ease;
+}
+@keyframes ok2pop { from{opacity:0; transform:translateY(6px) scale(.98);} to{opacity:1;} }
+.ok2-pop h5 { margin:0 0 4px; font-size:.95rem; font-weight:800; text-transform:capitalize;
+  display:flex; align-items:center; gap:6px; }
+.ok2-pop .ok2-pop-sent { font-size:.72rem; font-weight:700; padding:1px 8px; border-radius:9999px; }
+.ok2-pop-sent.pos { background:#e6f4ea; color:#137333; }
+.ok2-pop-sent.neg { background:#fce8e6; color:#c5221f; }
+.ok2-pop-sent.neu { background:#f1f3f4; color:#5f6368; }
+.dark .ok2-pop-sent.pos { background:#0f3d22; color:#7ee2a8; }
+.dark .ok2-pop-sent.neg { background:#4a1512; color:#ffb4ac; }
+
+/* ---------- 7) Fetstil på/av ---------- */
+.ok2-bold #savedList .saved-open,
+.ok2-bold #savedList .saved-syn,
+.ok2-bold #savedList .chip,
+.ok2-bold #suggestions .chip,
+.ok2-bold #recentBar .chip { font-weight:900 !important; }
+
+/* ---------- 8) Översätt ---------- */
+.ok2-transbtn {
+  display:inline-flex; align-items:center; gap:5px;
+  padding:8px 12px; border-radius:9px; border:1px solid var(--g-blue,#1a73e8);
+  color:var(--g-blue,#1a73e8); background:var(--surface,#fff); font-weight:700; font-size:.82rem; cursor:pointer;
+}
+.ok2-transbtn:hover { background:var(--g-blue,#1a73e8); color:#fff; }
+.ok2-trans-panel {
+  margin-top:12px; border:1px solid var(--border,#e0e0e0); border-radius:12px; padding:12px 14px;
+  background:var(--surface-2,#f1f3f4); font-size:.86rem;
+}
+.ok2-trans-panel h5 { margin:0 0 8px; font-weight:800; display:flex; align-items:center; gap:6px; }
+.ok2-trans-panel .ok2-tr-row { margin:5px 0; }
+.ok2-trans-panel b { color:var(--text-2,#5f6368); font-weight:700; }
+
+/* ---------- 9) Byt namn ---------- */
+.ok2-rename {
+  border:none; background:none; cursor:pointer; font-size:.85rem; opacity:.55; padding:2px 4px;
+}
+.ok2-rename:hover { opacity:1; }
+
+/* ---------- 10) Auto-generera förklaring (cirkel) ---------- */
+.ok2-genwrap { margin-top:8px; display:flex; align-items:flex-start; gap:10px; }
+.ok2-gencircle {
+  flex:0 0 auto; width:40px; height:40px; border-radius:50%; cursor:pointer;
+  border:2px solid var(--g-blue,#1a73e8); color:var(--g-blue,#1a73e8);
+  background:var(--surface,#fff); font-size:1rem; display:flex; align-items:center; justify-content:center;
+  transition:transform .12s, background .15s;
+}
+.ok2-gencircle:hover { background:var(--g-blue,#1a73e8); color:#fff; transform:rotate(45deg); }
+.ok2-gencircle.spin { animation: ok2spin 1s linear infinite; }
+@keyframes ok2spin { to { transform:rotate(360deg); } }
+.ok2-genexpl { flex:1; font-size:.85rem; line-height:1.45; color:var(--text,#202124);
+  background:var(--surface-2,#f1f3f4); border-radius:10px; padding:8px 11px; }
+.ok2-genexpl:empty { display:none; }
+
+/* ---------- 11) Röstläge ---------- */
+.ok2-voicebtn {
+  display:inline-flex; align-items:center; gap:6px;
+  padding:9px 16px; border-radius:9999px; border:1px solid var(--border,#e0e0e0);
+  background:var(--surface,#fff); color:var(--text,#202124); font-weight:700; font-size:.82rem; cursor:pointer;
+}
+.ok2-voicebtn:hover { border-color:var(--g-blue,#1a73e8); color:var(--g-blue,#1a73e8); }
+.ok2-modal {
+  position:fixed; inset:0; z-index:10000; background:rgba(0,0,0,.5);
+  display:flex; align-items:center; justify-content:center; padding:16px; backdrop-filter:blur(4px);
+}
+.ok2-modal.hidden { display:none; }
+.ok2-modal-card {
+  width:min(520px,100%); max-height:88vh; overflow-y:auto; background:var(--surface,#fff);
+  color:var(--text,#202124); border-radius:18px; padding:18px; box-shadow:0 20px 60px rgba(0,0,0,.35);
+}
+.ok2-modal-card h3 { margin:0 0 4px; font-size:1.2rem; font-weight:800; display:flex; align-items:center; gap:8px; }
+.ok2-modal-card .ok2-sub { color:var(--text-2,#5f6368); font-size:.82rem; margin:0 0 14px; line-height:1.4; }
+.ok2-mic {
+  width:76px; height:76px; border-radius:50%; border:none; cursor:pointer; margin:4px auto 10px; display:flex;
+  align-items:center; justify-content:center; font-size:2rem;
+  background:var(--g-blue,#1a73e8); color:#fff; box-shadow:0 8px 24px rgba(26,115,232,.4);
+}
+.ok2-mic.listening { background:#ea4335; animation: ok2pulse 1.2s ease-in-out infinite; }
+@keyframes ok2pulse { 0%,100%{ box-shadow:0 0 0 0 rgba(234,67,53,.5);} 50%{ box-shadow:0 0 0 16px rgba(234,67,53,0);} }
+.ok2-transcript {
+  border:1px solid var(--border,#e0e0e0); border-radius:12px; padding:10px 12px; min-height:44px;
+  font-size:.9rem; margin-bottom:10px; background:var(--surface-2,#f1f3f4); white-space:pre-wrap;
+}
+.ok2-answer { border-radius:12px; padding:10px 12px; font-size:.86rem; line-height:1.5;
+  background:var(--surface-2,#f1f3f4); margin-bottom:10px; white-space:pre-wrap; }
+.ok2-answer:empty { display:none; }
+.ok2-cam { width:100%; border-radius:12px; background:#000; display:none; margin-bottom:10px; max-height:220px; object-fit:cover; }
+.ok2-cam.show { display:block; }
+.ok2-modal-actions { display:flex; gap:8px; flex-wrap:wrap; }
+.ok2-close { margin-left:auto; }
+.ok2-hintline { font-size:.74rem; color:var(--text-2,#5f6368); margin-top:10px; line-height:1.4; }
+.ok2-hintline code { background:var(--surface-2,#f1f3f4); padding:1px 5px; border-radius:5px; }
+
+/* liten toast */
+.ok2-toast {
+  position:fixed; left:50%; bottom:26px; transform:translateX(-50%) translateY(20px);
+  background:#202124; color:#fff; padding:11px 18px; border-radius:9999px; font-size:.85rem; font-weight:600;
+  z-index:10001; opacity:0; transition:opacity .2s, transform .2s; pointer-events:none; max-width:90vw;
+}
+.ok2-toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
