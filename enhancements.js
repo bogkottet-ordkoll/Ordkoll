@@ -92,7 +92,8 @@
       if (!raw) { body.textContent = "Ingen förenklad beskrivning sparad för det här ordet ännu."; revealBtn.style.display = "none"; return; }
       revealBtn.style.display = "";
       body.textContent = revealed ? raw : maskWord(raw, word);
-      revealBtn.textContent = revealed ? "🙈" : "👁️";
+      revealBtn.textContent = "👁️";
+      revealBtn.classList.toggle("off", revealed);
       revealBtn.title = revealed ? "Dölj ordet" : "Visa ordet";
     }
     renderBody();
@@ -283,7 +284,8 @@
         if (!rawGen) { genExplEl.textContent = ""; revealBtn.style.display = "none"; return; }
         revealBtn.style.display = "";
         genExplEl.textContent = "🧠 " + (revealed ? rawGen : maskWord(rawGen, word));
-        revealBtn.textContent = revealed ? "🙈" : "👁️";
+        revealBtn.textContent = "👁️";
+        revealBtn.classList.toggle("off", revealed);
         revealBtn.title = revealed ? "Dölj ordet" : "Visa ordet";
       }
       renderGen();
@@ -338,7 +340,7 @@
   function generateExplanation(word) {
     var d = ORDBOK()[norm(word)] || {};
     if (geminiKey()) {
-      return callGemini('Skriv en NY, enkel och kort förklaring (1–2 meningar, vardagligt språk) av det svenska ordet "' + word + '". Sammanfatta vad det betyder. Svara bara med förklaringen.')
+      return callGemini('Skriv en NY, enkel och kort förklaring (1–2 meningar, vardagligt språk) av det svenska ordet "' + word + '". Sammanfatta vad det betyder. VIKTIGT: skriv ALDRIG ut själva ordet "' + word + '" (eller dess böjningar) – ersätt det med ＿＿＿ så att man inte kan gissa ordet. Svara bara med förklaringen.')
         .then(function (t) { return t.trim() || fallbackExpl(word, d); });
     }
     return Promise.resolve(fallbackExpl(word, d));

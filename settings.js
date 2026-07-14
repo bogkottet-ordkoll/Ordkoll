@@ -77,22 +77,32 @@
   function trCache() { return load("ordkollen_tr", {}); }
   function trCacheSave(c) { try { save("ordkollen_tr", c); } catch (e) {} }
 
+  // fetch med timeout: på mobilnät kan translate-endpointen hänga för evigt utan
+  // detta, vilket gör att sidan verkar "frysa" (toasten "Översätter…" fastnar).
+  function fetchT(url, ms) {
+    ms = ms || 8000;
+    if (typeof AbortController === "undefined") return fetch(url);
+    const ac = new AbortController();
+    const t = setTimeout(() => { try { ac.abort(); } catch (e) {} }, ms);
+    return fetch(url, { signal: ac.signal }).finally(() => clearTimeout(t));
+  }
+
   // Anropa gtx-endpointen (ingen nyckel krävs). texts = array, returnerar array.
   async function gtx(texts, sl, tl) {
     const joined = texts.join("\n");
     const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${sl}&tl=${tl}&dt=t&q=${encodeURIComponent(joined)}`;
-    const r = await fetch(url);
+    const r = await fetchT(url);
     if (!r.ok) throw new Error("HTTP " + r.status);
     const j = await r.json();
     let out = ""; (j[0] || []).forEach(seg => { if (seg && seg[0]) out += seg[0]; });
     let parts = out.split("\n");
     if (parts.length !== texts.length) {
-      // Fallback: översätt en och en
+      // Fallback: översätt en och en (också med timeout så inget hänger)
       const res = [];
       for (const t of texts) {
         try {
           const u2 = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${sl}&tl=${tl}&dt=t&q=${encodeURIComponent(t)}`;
-          const r2 = await fetch(u2); const j2 = await r2.json();
+          const r2 = await fetchT(u2); const j2 = await r2.json();
           res.push((j2[0] || []).map(s => s[0]).join("") || t);
         } catch (e) { res.push(t); }
       }
@@ -175,7 +185,11 @@
     });
     if (!uniques.size) return;
 
-    const uniqArr = [...uniques];
+    // Skydd mot frysning på mobil: översätt högst så här många unika strängar
+    // per pass. Resten översätts när de dyker upp (observeDynamic) eller nästa
+    // gång vyn öppnas – så vi aldrig skickar tusentals begäranden på en gång.
+    const MAX_UNIQUES = 700;
+    const uniqArr = [...uniques].slice(0, MAX_UNIQUES);
     // Hjälpare som skriver in en översättnings-map i DOM:en.
     const applyMap = (map) => {
       nodes.forEach(n => {
@@ -219,6 +233,7 @@
     const app = $("appView"); if (!app || !("MutationObserver" in window)) return;
     new MutationObserver((muts) => {
       if (getLang() === "sv") return;
+      if (translating) return; // pågår redan en översättning – undvik att stapla på fler
       muts.forEach(m => m.addedNodes.forEach(node => { if (node.nodeType === 1) pendingRoots.push(node); }));
       clearTimeout(obsTimer);
       obsTimer = setTimeout(async () => {

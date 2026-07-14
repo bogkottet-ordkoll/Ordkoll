@@ -210,10 +210,19 @@
 
 /* ---- Visa/dölj-knapp för maskerat ord (👁️/🙈) ---- */
 .ok2-reveal {
+  position: relative;
   border: none; background: transparent; cursor: pointer;
   font-size: 1rem; line-height: 1; padding: 2px 4px; border-radius: 8px;
   vertical-align: middle; opacity: .8; transition: background .12s, opacity .12s;
 }
 .ok2-reveal:hover { opacity: 1; background: var(--surface-2, #f1f3f4); }
+/* "Dölj"-läge: överstruket öga i stället för ape-emojin (🙈 borttagen) */
+.ok2-reveal.off::after {
+  content: ""; position: absolute; left: 3px; right: 3px; top: 50%;
+  height: 2px; background: currentColor; border-radius: 2px;
+  transform: translateY(-50%) rotate(-22deg);
+  box-shadow: 0 -1px 0 rgba(255,255,255,.85);
+  pointer-events: none;
+}
 .ok2-genwrap .ok2-genreveal { margin-left: 4px; }
 .ok2-pop .ok2-pop-reveal { margin-left: 6px; }
